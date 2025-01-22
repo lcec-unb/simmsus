@@ -162,6 +162,58 @@ a Lattice strucutre is shown in the image bellow:
 
 <img src="gallery/periodic_lattice.png" width="340" height="320">
 
+Using a Lattice representation it is possible to imagine what the black
+particle would see when looking to any direction: an infinite system with no beggining, no end and no walls. The use of a Lattice
+structure leads to a convergence of the system transport properties for long-
+range slow decays, but increases substantially the computational time, since
+now each particle on the central cell must interact with their neighbours in
+the real simulation box and with all the particles in the imaginary boxes
+surrounding the real one in the Lattice structure. Also, when we consider
+particle-particle interactions in a system with $N_{part}$ , interacting forces or
+torques are generally expressed in terms of a series in the form:
+
+<img src="gallery/eq1.png" width="220" height="85">
+
+where $r_{ij}$ denotes the distance between particles $i$ and $j$ and $f(r_i, r_j)$ is a function of the system configuration at the instant of time in which the calculation is being performed. These functions differ from each kind of physical mechanism involved and are generally known as Green functions. These functions arive from physical principles and have to be modified using a sophisticated mathematical technique known as the Ewald (1921) summation to be expressed in a Lattice structure. In SIMMSUS the user can define wether the periodic calculation is being performed for long-range dipolar interactions for both forces and torques. This definition occurs on the configuration file simconfig.dat. Generally, these periodic calculations are only necessary in non-dilute conditions. Usually for particle volume fractions above $\phi \geq 10$%, but the user should consult the reference [1] to understand the limits in which non-periodic calculations of magnetic forces and torques should produce precise results.
+
+SIMMSUS also considers the effect of hydrodynamic interactions in Creep-
+ing flow, which are calculated using a mobility formulation where the particles velocities are directly linked with the non-hydrodynamic forces acting on each of them through equation
+
+<img src="gallery/eq2.png" width="580" height="170">
+
+where $u_1$, $u_2$ ,..., $u_N$ denotes the velocities of particles 1, 2, . . . , N . The tensors $M_{ij}$ , for $i = 1,..., N$ and $j = 1,..., N$ , are second rank mobility tensors or square matrices that depend on the suspension configuration. These tensors couple the motion of particles given how the forces acting on a particle $j$ change the velocities of a particle $i$. Here, $f_i$ represents the sum
+of non-hydrodynamic forces acting on a particle i. Hence, when the user sets that hydrodynamic interactions must be computed in simconfig.dat, the calculations of the particle’s velocities are automatically performed in a period way. For more details regarding the mobility formulation used in SIMMSUS the reader should consult reference [2].
+
+Whenever the user defines one or more of the following variables as true
+
+• ACCOUNT HYDRODYNAMIC INTERACTIONS;
+
+• PERIODIC MAGNETIC TORQUES;
+
+• PERIODIC MAGNETIC FORCES,
+
+SIMMSUS ativates the following subroutines related to periodic computa-
+tions:
+
+• tabelagreen → computes the necessary Green functions and storages
+them in large pre-calculated tables;
+
+• estrutura periodica → creates the indexes of cells in the Lattice strucutre;
+
+• periodic interactions → computes all periodic interactions between the
+particles at a given time-step (this is the most expensive calculation
+performed by SIMMSUS);
+
+It is important to mention that when the user enables account hydro-
+dynamic interactions in the file simconfig.dat SIMMSUS automatically
+considers a mobility formulation, which neglects the effect of particle inertia.
+Therefore, when considering hydrodynamic interactions we recommend the
+user to disable variable particle inertia in simconfig.dat.
+
+
+
+
+
 ## Brownian motion and random numbers
 
 <img src="gallery/random_walk.png" width="340" height="320">
