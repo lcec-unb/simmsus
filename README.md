@@ -139,6 +139,27 @@ This file is responsible for the source code compilation. Historically, througho
 
 ## Periodic calculations
 
+In order to understand the logic of SIMMSUS it is important to understand
+a few things. First of all, the calculations of forces, torques and particle’s
+velocities can be perfomed in a periodic or non-periodic structure. Here, we
+are not referring to the boundary conditions of the simulation cell, which
+are always periodic, but to the way in which these quantities are calculated.
+From the physics of multibody interacting systems it is known that long-range
+particle interactions have a certain decay. For example, the gravitational
+force between two masses decay with $1/r^2$, where $r$ is the distance between
+the center of the bodies. 
+
+A typical $1/r^n$ decay is said to be slow if $n \leq 3$. In this sense slow decays are felt from a great distance from the source which generates the disturbances in the surroundings. These slow decays lead to
+a famous convergence problem of the calculation of average properties of
+these systems, which demands a huge amount of particles to produce stable,
+convergent values of the transport properties of these suspensions. One way
+to solve this problem is to emulate an infinite suspension of particles using a
+periodic representation of the particulate system strucute called Lattice. A
+Lattice is a representation of a periodically replicated strucutre containing
+the central cell (the simulation box itself) and imaginary surrounding cells
+that mimics the configuration of the central cell. A visual representation of
+a Lattice strucutre is shown in the image bellow:
+
 <img src="gallery/periodic_lattice.png" width="340" height="320">
 
 ## Brownian motion and random numbers
