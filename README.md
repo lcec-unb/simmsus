@@ -34,7 +34,9 @@ Since the origins of its earlier development, SIMMSUS has been tested and compil
 In order to run a simulation, the user will need only 2 files: the executable file (simmsus.ex) and the input configuration file simconfig.dat. The user can drag these two files to a new folder to run a new set of numerical simulations defined on the configuration file simconfig.dat. 
 
 The configuration file is a text file with several questions that the user should answer in order to direct
-the path that SIMMSUS should cross in order to produce a specific set of simulations for the intended physics. We will talk about this file later. Figure (1) shows how the source-code files are related to each other.
+the path that SIMMSUS should cross in order to produce a specific set of simulations for the intended physics. We will talk about this file later. Figure bellow shows how the source-code files are related to each other.
+
+<img src="gallery/main_structure.png" width="500" height="300">
 
 The file simmsus.f90 basically calls other files from the source code structure in a straightfoward order. The first call is related to the reading of the
 simulation data. The file input.f90 reads the configuration file simconfig.dat and storage in logical, real and integer variables all the information necessary to run a set of simultaneous configurations. SIMMSUS may run a single simulation or perform several simultaneous numerical experiments varying the initial configuration of the particles and the set of random numbers used to emulate Brownian forces and torques. Therefore, the use may configure in the simconfig.dat file all the informations regarding all the simultaneous numerical experiments. 
@@ -133,5 +135,76 @@ of the problem.
 This file is responsible for the source code compilation. Historically, throughout SIMMSUS development we have tested it using the Intel Fortran Compiler for Linux. Therefore, compilation directives for SIMMSUS in its present version automatically consider that the user is compiling SIMMSUS using Intel Fortran Compiler. Moreover, we use parallelized loops for the simultaneous numerical experiments. This paralelization strategy considers the use of OpenMP, therefore the user may notice the -qopenmp flag no the makefile. We also consider that the code will be run in 64 bits processors and this information must appear on a specif flag on the makefile also. In order to compile the code and produce an executable file the user must open a terminal in the folder where the files are located and type make and press enter twice. In the first time an error message will appear due to the inexistence of the module files, which are created after the user press make and type enter for the first time. In the second compilation attempt the error message will no long appear and the user will notice the creation of an executable file named simmsus.ex.
 
 
-# Physics
+# Physics and numerics
 
+## Periodic calculations
+
+<img src="gallery/periodic_lattice.png" width="340" height="320">
+
+## Brownian motion and random numbers
+
+<img src="gallery/random_walk.png" width="340" height="320">
+
+## Dipolar forces and torques
+
+## Translational and rotational particle inertia
+
+## Initial condition
+
+<img src="gallery/particle_ic.png" width="500" height="200">
+
+<img src="gallery/dipole_ic.png" width="500" height="220">
+
+## Field excitations
+
+<img src="gallery/field_excitation1.png" width="500" height="360">
+
+<img src="gallery/field_excitation2.png" width="400" height="320">
+
+# Code validation
+
+<img src="gallery/validation1.png" width="500" height="220">
+
+<img src="gallery/validation2.png" width="500" height="220">
+
+
+# Gallery
+
+<img src="gallery/example1.png" width="440" height="400">
+
+<img src="gallery/example2.png" width="440" height="200">
+
+<img src="gallery/example3.png" width="440" height="200">
+
+<img src="gallery/example4.png" width="440" height="600">
+
+# References
+
+1. GONTIJO, R.G.; CUNHA, F.R. . Dynamic numerical simulations of
+magnetically interacting suspensions in creeping flow. Powder Tech-
+nology (Print), v. 279, p. 146-165, 2015.
+2. GONTIJO, R.G.; Malvar, S. ; CUNHA, F.R. . Magnetic particulate
+suspensions from the perspective of a dynamical system. Powder Tech-
+nology (Print), v. 297, p. 165-182, 2016.
+3. GONTIJO, R.G.. A numerical perspective on the relation between
+particle rotational inertia and the equilibrium magnetization of a fer-
+rofluid. Journal of Magnetism and Magnetic Materials, v. 434, p.
+91-99, 2017.
+4. Gontijo, R. G.; CUNHA, F. R. . Numerical simulations of magnetic sus-
+pensions with hydrodynamic and dipole-dipole magnetic interactions.
+PHYSICS OF FLUIDS, v. 29, p. 062004, 2017.
+5. GONTIJO, R.G.; Malvar, S. . Microstructural transition in an or-
+dered set of magnetic spheres immersed in a carrier liquid. Mechanics
+Research Communications, v. 83, p. 12-17, 2017.
+6. GONTIJO, R.G.. Heat transfer increase for a laminar pipe flow of a
+magnetic fluid subjected to constant heat flux: an initial theoretical
+approach. MECHANICS RESEARCH COMMUNICATIONS, v. 91,
+p. 27-32, 2018.
+7. DE CARVALHO, D D ; GONTIJO, R G . Reconstructing a continuous
+magnetization field based on local vorticity cells, CFD and Langevin
+dynamics: a new numerical scheme. JOURNAL OF MAGNETISM
+AND MAGNETIC MATERIALS, v. 514, p. 167135, 2020.
+8. GUIMARÃES, A. B. ; CUNHA, F. R. ; Gontijo, R. G. . The influence
+of hydrodynamic effects on the complex susceptibility response of mag-
+netic fluids undergoing oscillatory fields: New insights for magnetic
+hyperthermia. PHYSICS OF FLUIDS, v. 32, p. 012008-012008-17, 2020.
