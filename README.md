@@ -14,7 +14,7 @@ In its present version SIMMSUS is capable of simulating Brownian and non-Brownia
 
 Regarding the application of time-dependent magnetic fields, we have conducted a rigorous study on the dynamical susceptibility response of ferrofluids using SIMMSUS and have validated the dynamical solution of the rotational motion of the dipole moments of the particles provided by the code by comparing the numerical solution with an asymptotic theoretical model (Berkov et al, 2009). The code seems to predict with excellent precision the dynamical behavior of the internal structure of ferrofluids.
 
-## General structure of the source-code
+# General structure of the source-code
 
 The code contains 8 files, from which 7 are necessary to produce the executable file (program) after the compilation and 1 is a configuration file.
 These are the following files:
@@ -50,4 +50,88 @@ The last one contains all the subroutines used on the code. After the processing
 The makefile contains the compilation instructions. Here the name of the source code files, the compilation command (and consequently the compiler) is specified and any optional compilation flags are also defined. We will talk about the general logic and structure of each of these files in the next subsections of this README file.
 
 ## simmsus.f90
+
+This file simply calls the program subroutines in a specific order in order to execute a set of numerical simulations defined by the user in the configuration
+file (simconfig.dat). Besides calling these subroutine this file also counts the total simulation time and write a simple header that appears on the terminal when the user executes the solver. 
+
+## input.f90
+
+This subroutine reads the file simconfig.dat and storage the information in logical, integer and real varaibles. The variables presented in simconfig.dat must respect the formats defined in file input.f90. These formats are defined through the following commands:
+
+505 FORMAT(1X,A40,1X,E11.4E2)
+507 FORMAT(1X,A40,1X,I6)
+508 FORMAT(1X,A40,L10).
+
+Here the numbers 505, 507, 508 are simply shortcuts used to specify these formats. The format 505 defines a single keyboard space (1X) followed by 40 letters (A40) a single space (1X) and a real variables containing 11 digits
+expressed in scientific notation with 4 digits after the comma and 2 digits after the symbol E. Here is an example of the 505 format expressed in simconfig.dat:
+
+VOLUME FRACTION OF PARTICLES...........: 1.0000E-02
+
+The other formats, 507 and 508, are related to integer and logical variables respectively. New implementations should be added as options in the simconfig.dat file and altered on the input.f90 file also. The user is free to
+modify the structure of the menus on the configuration file simconfig.dat, but it is important to change the strucutre of the file input.f90 accordingly.
+
+## main.f90
+
+The main.f90 file sets the order in which calculations are performed in order to
+achieve a specific set of numerical simulations. In this file the subroutines are
+sequentially called from the subroutines.f90 module. The heavy calculations
+are programmed in subroutines.f90.
+The sequence of procedures called by main.f90 are presented bellow.
+1. Definition of constant internal numerical parameters;
+2. Allocation of the matrices in the memory;
+3. Definition of number formats for the output files;
+4. Cleaning all important variables;
+5. Determination of particle size distribution;
+6. Calculation of the simulation box size;
+7. Creation of output files;
+8. Calculation of Green-functions and Lattice indexes structure;
+9. Distribution of dipole moments;
+10. Generation of the initial condition;
+11. Calculation of field excitations;
+12. Execution of the main simulation loop;
+13. Deallocation of matrices from memory;
+    
+The main simulation loop is where the simulation occurs. This loop is composed by the following sequence:
+
+1. Calculation of each force acting on each particle;
+2. Solution of the linear momentum equation;
+3. Evolution of the position of each particle;
+4. Calculation of each torque acting on each particle;
+5. Solution of the angular momentum equation;
+6. Evolution of the orientation of each particle;
+This loop goes on until the total simulation time is reached. It is important to notice that position, velocity and dipole orientation are storaged in
+large matrices with the following indeces notation: X(i,j,k), 
+
+where i=[1,...,Nrea], j = [1,...,N] and k = [1,2,3]. Here Nrea denotes the number of simultaneous numerical experiments (realizations), N represents the number of particles and k the directions of 3D space. This way, X(12,1234,2) represents the position of particle 1234 in the 12th numerical experiment in the y direction. Since
+SIMMSUS also deals with the modeling of Brownian systems, in which a
+stochastic forcing is always present, the code was built to perform several
+simultaneous numerical experiments so a meaningful statistics could be obtained for a large number of independent numerical experiments. However,
+the user is also free to perfom a single numerical experiment. The number
+of numerical experiments as well as the number of particles in each simulation set is configured in the simconfig.dat file. The loops regarding the
+execution of all the calculations with respect to each numerical experiment
+are paralelized through openMP. For this purpose the user must set the flag
+-qopenmp in the makefile (if using INTEL FORTRAN COMPILER).
+
+## subroutines.f90
+
+The inteligence of SIMMSUS is programmed in this module. Here, it is where all the heavy calculations are really performed. This file contains all the calculation routines implemented in the code, which are called by other files, such as main.f90 and statistics.f90. We won’t detail all the subroutines contained in this file here, since many of them are really simple and intuitive
+and all important details regarding SIMMSUS subroutines are commented in the code. However, some subroutines are more complex than others and we believe some discussion regarding some of them are important for the developer to understand some aspects of the logic of SIMMSUS.
+
+## statistics.f90
+
+SIMMSUS has also a statistical analysis module implemented on file statistics.f90. This file is called whenever the user enables statistical analysis as true on file simconfig.dat. In order for SIMMSUS to perform this statistical analysis the user must enable record velocity on file as true on simconfig.dat. The statistical analysis module basically reads all the velocity
+components of all particles in all realizations from the output files named velocidade .plt and calculates several important statistical quantities based on ensemble averages of relevant physical variables. These calculations produce new output files containing the calculated variables, such as: average velocity of the system, Reynolds stress tensor of particle velocity fluctuations, time correlation function and the suspension's correlation time.
+
+## variables.f90
+
+This file defines the global variables used in SIMMSUS. We ask for the developers to maintain an organized version of this file including a legend for each
+variable in the form of comments bellow the definition of the global variables
+of the problem.
+
+## makefile
+
+This file is responsible for the source code compilation. Historically, throughout SIMMSUS development we have tested it using the Intel Fortran Compiler for Linux. Therefore, compilation directives for SIMMSUS in its present version automatically consider that the user is compiling SIMMSUS using Intel Fortran Compiler. Moreover, we use parallelized loops for the simultaneous numerical experiments. This paralelization strategy considers the use of OpenMP, therefore the user may notice the -qopenmp flag no the makefile. We also consider that the code will be run in 64 bits processors and this information must appear on a specif flag on the makefile also. In order to compile the code and produce an executable file the user must open a terminal in the folder where the files are located and type make and press enter twice. In the first time an error message will appear due to the inexistence of the module files, which are created after the user press make and type enter for the first time. In the second compilation attempt the error message will no long appear and the user will notice the creation of an executable file named simmsus.ex.
+
+
+# Physics
 
