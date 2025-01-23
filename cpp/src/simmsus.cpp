@@ -65,9 +65,9 @@ XI2 = new double[nb * numRealizations * numParticles];
 ILF0 = new double[125];
 ILF1 = new double[125];
 ILF2 = new double[125];
-ILR0 = new double[9];
-ILR1 = new double[9];
-ILR2 = new double[9];
+ILR0 = new double[27];
+ILR1 = new double[27];
+ILR2 = new double[27];
 
 
 shearratei = configuration.getDynincrshrate(); //! shear-rate -> Arquivo de configuracao

@@ -80,9 +80,9 @@ for(a = 0; a < 5; a++){
 
             // Number of physical boxes
             s = auxper3[a] +  auxper2[b] + auxper[c];
-            ILF0[s - 1] = a;
-            ILF1[s - 1] = b;
-            ILF2[s - 1] = c;
+            ILF0[s - 1] = a - 1;
+            ILF1[s - 1] = b - 1;
+            ILF2[s - 1] = c - 1;
         }
     }
 }
@@ -106,9 +106,9 @@ for(a =  0; a < 3; a++){
             // Number of reciprocal lattices
             s = auxperi3[a] + auxperi2[b] + auxperi[c];  
             cout << s << "\t";
-            ILR0[s - 1] = a;
-            ILR1[s - 1] = b;
-            ILR2[s - 1] = c;
+            ILR0[s - 1] = a - 2;
+            ILR1[s - 1] = b - 2;
+            ILR2[s - 1] = c - 2;
         }
     }
 }
