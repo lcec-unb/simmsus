@@ -34,6 +34,8 @@ if (argc < 2){
 //Read the Input File and Create the Object
 
 Configuration configuration(argv[1]);
+numParticles = configuration.getNumpart();
+numRealizations = configuration.getNumreal();
 double *cof01 = NULL;
 double *cof11 = NULL;
 double *cof02 = NULL;
@@ -74,8 +76,7 @@ shearratei = configuration.getDynincrshrate(); //! shear-rate -> Arquivo de conf
 per = (4.0 / 3.0) * configuration.getBrownianpecletnum(); //! rotational Peclet number -> Arquivo de configuracao
 
 phi = configuration.getVolumefracpart();
-numParticles = configuration.getNumpart();
-numRealizations = configuration.getNumreal();
+
 totalRealParticle = numParticles * numRealizations;
 
 if(configuration.getStatanalysis()){
@@ -196,12 +197,12 @@ if(periodicity){
     }
 }
 periodicStructure();
-// for(int j = 0; j < numRealizations; j++){
-//     for(int i = 0; i < numParticles; i++){
-//         cout << X0[j * numRealizations + i] << "\t" << X1[j * numRealizations + i] << "\t" << X2[j * numRealizations + i];
-//         cout << U0[j * numRealizations + i] << "\t" << U1[j * numRealizations + i] << "\t" << U2[j * numRealizations + i];
-//     }
-// }
+for(int j = 0; j < numRealizations; j++){
+    for(int i = 0; i < numParticles; i++){
+        cout << X0[j * numRealizations + i] << "\t" << X1[j * numRealizations + i] << "\t" << X2[j * numRealizations + i];
+        cout << U0[j * numRealizations + i] << "\t" << U1[j * numRealizations + i] << "\t" << U2[j * numRealizations + i];
+    }
+}
 
 cout << "END\n";
 
