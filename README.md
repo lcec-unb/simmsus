@@ -369,19 +369,87 @@ always assumes that the dipole moment of the particle is fixed on the particle.
 
 ## Initial condition
 
+**SIMMSUS** works with three different types of initial particle distributions:
+random, ordered or spherical aggregates. Random and ordered distributions
+have been shown in previous figures of this manual. The initial spherical aggregate
+condition is shown bellow:
 
+<center><img src="gallery/spherical.png" width="300" height="260"></center>
+
+The subroutines responsible for creating the initial condition are:
+
+- *particle distribution*;
+- *box_size*;
+- *distribui_dipolo*;
+- *condicao_inicial*;
 
 ## Field excitations
 
+In **SIMMSUS** the user can choose different ways of applying an external
+excitation on the multibody magnetic system of particles. When we refer here to external field excitations we are refering to an external applied
+magnetic field and/or an external applied shear rate on the system. The
+user can combine both kinds of excitations, which leads to very interesting dynamical responses. These excitations are calculated in the subroutines
+field excitations, rotating field and torque externo. 
+
+Each of these subroutines is responsible for a specific set of possible excitations as follows:
+
+• *field_excitations*: is used for implementing a nonlinear applied magnetic field based on the solution of the Duffing’s harmonic oscillator,
+a double frequency excitation and a dynamical sweep of a single frequency excitation where the system periodically increases its excitation
+frequency. The last alternative is also implemented for the shear rate within this sub-routine;
+
+• *rotating_field*: is used for implementing a rotating 2D magnetic field;
+
+• *torque_externo*: is used to calculate the magnetic torques on the particles arising from an external field. This subroutine is used for
+all the 1D applied fields, which include a steady-state and a simple oscillatory field;
+
+Bellow we list the equations responsible for each of the implemented field
+excitations on **SIMMSUS**.
+
+- Oscillatory field $\rightarrow$ $H(t) = H_0 \sin(\omega t) \hat{e}_z$
+- Double period oscillatory field $\rightarrow$ $H(t) = H_0 [\sin(\omega_1 t) + \sin(\omega_2 t)] \hat{e}_z$
+- Rotating field $\rightarrow$ $H(t) = H_0 [\sin(\omega t)\hat{e}_y + \cos(\omega t)\hat{e}_z]$
+- Nonlinear Duffing oscillator $\rightarrow$ $H(t) = f(t) \hat{e}_z$, where $f(t)$ is the solution of the following nonlinear ordinary differential equation (ODE):
+  
+<center><img src="gallery/eq10.png" width="360" height="60"></center>
+
+
+Variables $\omega$, $\omega_1$ ,$\omega_2$, $C_1$, $C_2$, $C_3$ and $C_4$ are all defined by the user in the
+configuration file **simconfig.dat**.
+
+Bellow we show the excitation signals for an oscillatory (a), double
+period oscillation (b) and nonlinear Duffing field excitation for different values of parameter $C_1$ (c) and (d). 
+
 <center><img src="gallery/field_excitation1.png" width="500" height="360"></center>
+
+Finally, the next figure illustrates the excitation signal in the case of a dynamical sweep of the fields frequency, which can also
+be enabled and configured by the user in **simconfig.dat** file.
 
 <center><img src="gallery/field_excitation2.png" width="400" height="320"></center>
 
 # Code validation
 
+**SIMMSUS** has been tested in different physical scenarios and using different
+database for validation purposes. Here we show some quantitative simulation
+results documented in previous publications that shows the capacity of the
+code to capture relevant aspects on the physics of magnetic and non-magnetic
+suspensions.
+
+Bellow we show the average sedimentation velocity of non-Brownian
+and non-magnetic particles subjected to hydrodynamic interactions. While figure (a) considers a random initial condition, figure (b) considers an ordered array, whose initial condition is show in the next figure.
+
 <center><img src="gallery/validation1.png" width="560" height="260"></center>
 
-<center><img src="gallery/validation2.png" width="560" height="250"></center>
+
+<center><img src="gallery/ordered.png" width="560" height="200"></center>
+
+In the context of Brownian, magnetic suspensions, we present the following plots.
+In these plots we show the equilbrium magnetization of a suspension subjected to a steady state magnetic field (a) and the temperature derivative
+of a suspension of magnetic Brownian particles subjected to an oscillatory
+field with respect to the frequency of the field (b). In both plots the symbols
+denote numerical results obtained by **SIMMSUS** and the lines represent consolidated asymptotic theories. For more details regarding these plots we
+recommend the reader to consult the references displayed in this README file.
+
+<center><img src="gallery/validation2.png" width="560" height="240"></center>
 
 
 # Gallery
