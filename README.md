@@ -153,13 +153,13 @@ surrounding the real one in the Lattice structure. Also, when we consider
 particle-particle interactions in a system with $N_{part}$ , interacting forces or
 torques are generally expressed in terms of a series in the form:
 
-<center><img src="gallery/eq1.png" width="220" height="85"></center>
+<center><img src="gallery/eq1.png" width="210" height="80"></center>
 
 where $r_{ij}$ denotes the distance between particles $i$ and $j$ and $f(r_i, r_j)$ is a function of the system configuration at the instant of time in which the calculation is being performed. These functions differ from each kind of physical mechanism involved and are generally known as Green functions. These functions arive from physical principles and have to be modified using a sophisticated mathematical technique known as the Ewald [12] summation to be expressed in a Lattice structure. In **SIMMSUS** the user can define wether the periodic calculation is being performed for long-range dipolar interactions for both forces and torques. This definition occurs on the configuration file simconfig.dat. Generally, these periodic calculations are only necessary in non-dilute conditions. Usually for particle volume fractions above $\phi \geq 10$%, but the user should consult the reference [7] to understand the limits in which non-periodic calculations of magnetic forces and torques should produce precise results.
 
 **SIMMSUS** also considers the effect of hydrodynamic interactions in Creeping flow, which are calculated using a mobility formulation where the particles velocities are directly linked with the non-hydrodynamic forces acting on each of them through equation
 
-<center><img src="gallery/eq2.png" width="580" height="170"></center>
+<center><img src="gallery/eq2.png" width="560" height="150"></center>
 
 where $u_1$, $u_2$ ,..., $u_N$ denotes the velocities of particles 1, 2, . . . , N . The tensors $M_{ij}$ , for $i = 1,..., N$ and $j = 1,..., N$ , are second rank mobility tensors or square matrices that depend on the suspension configuration. These tensors couple the motion of particles given how the forces acting on a particle $j$ change the velocities of a particle $i$. Here, $f_i$ represents the sum
 of non-hydrodynamic forces acting on a particle i. Hence, when the user sets that hydrodynamic interactions must be computed in simconfig.dat, the calculations of the particle’s velocities are automatically performed in a period way. For more details regarding the mobility formulation used in SIMMSUS the reader should consult reference [2].
@@ -220,9 +220,152 @@ The subroutine responsible for generating the sequences of random numbers used i
   
 We have opted for implementing a customized subroutine for generating the random numbers used in our simulations instead of using the native random number FORTRAN subroutine. We have chosen this option due to several statistical tests performed in the beggining of the development of SIMMSUS used to validate the implementation of Brownian forces and torques. We have compared the ensemble average of the mean square displacement of a single Brownian particle as a function of time with Einstein’s theory and have found an excellent agreement using the implemented random number generation routine in SIMMSUS. For more details the user can consult reference [13].
 
-## Dipolar forces and torques
+## Calculation of forces and torques
+
+In **SIMMSUS** each type of force and torque is calculated using a specific
+subroutine. The following forces are considered in **SIMMSUS**:
+
+- Long-range dipolar forces between the particles;
+- Short-range repulsive forces between approaching particles;
+- Contact forces for slightly overlapped particles;
+- Brownian and gravitational forces;
+
+With respect to the torques acting on the particles, **SIMMSUS** considers:
+
+- Long-range dipolar torques between the particles;
+- Field-dipole torques between the particles;
+- Brownian torques;
+ 
+Forces regarding field-dipole interaction are implemented in **SIMMSUS**
+through subroutine *campo_externo*, but are disabled in the present version
+of the code. It is known that the magnetic force acting on a dipole is proportional to the magnetic field gradient and since we have been using **SIMMSUS**
+to study problems where the simulation box is a continuum volume in which
+magnetic field gradients are very small we have been neglecting the force
+acting on a dipole due to an external magnetic field. Anyway, the user is
+free to alter this option in the source-code of the program whenever he/she
+wants.
+
+The subroutines responsible for computing magnetic, repulsive, contact
+and gravitational forces are respectively
+
+- forca_magnetica;
+- respulsion;
+- gravity;
+
+Subroutine forca magnetica computes long-range dipolar forces between
+the particles in a non-periodic way. Subroutine repulsion computes both
+short-range repulsive and contact forces between the particles. Brownian
+forces and torques are both computed by the same subroutine, namely brow-
+nian. Magnetic torques between the particles are computed in a non-periodic
+way by subroutine torque magnetico. Periodic magnetic forces and torques
+are computed inside subroutine periodic interactions. For details regarding
+the expressions used to compute long-range periodic magnetic forces and
+torques the reader should consult reference [7].
 
 ## Translational and rotational particle inertia
+
+When hydrodynamic interactions are neglected, **SIMMSUS** gives two possi-
+bilities for computing the velocity of the particles: the first one considers
+particle inertia, while the second one neglects it. The physical principle behind the equation used to solve the velocities of the particles is Newton’s
+second law, for both the linear and angular velocity of each particle. In other
+words, the equations used for the solution of the motion of the particles are:
+
+<center><img src="gallery/eq3.png" width="190" height="120"></center>
+
+where $m$ and $I$ denotes respectively the mass and the inertia moment of a
+single particle, $v$ and $\omega$ represent the linear and angular velocities of the
+particle, $t$ denotes time and $F$ and $T$ represent respectively the forces and
+torques acting on a single particle. In the abscence of hydrodynamic interactions **SIMMSUS** considers a simple Stokes drag as the hydrodynamic
+force acting on each particle, this force is given in dimensional terms as $F_D = -6\pi \eta a$, where $\eta$ and $a$ represent the fluid’s viscosity and the radius
+of a single particle. It is important to keep in mind that the Stokes drag is
+only valid in Creeping-flow regime ($Re \ll 1$) and that is a basic premisse
+behind the mathematical equation of **SIMMSUS**. These equations
+are solved in SIMMSUS in their nondimensional version, given by
+
+<center><img src="gallery/eq4.png" width="200" height="70"></center>
+
+<center><img src="gallery/eq5.png" width="200" height="65"></center>
+
+where the asterisks denotes nondimensional variables and St and Str denote respectively the Stokes number and its correspondent rotational version.
+These physical parameters are defined as:
+
+<center><img src="gallery/eq6.png" width="420" height="75"></center>
+
+where $U_s$ denotes the Stokes velocity of an isolated particle. These expressions are obtained considering typical velocities and timescales related
+to the Stokes velocity, which seems to be a good choise for sedimentation problem. Other possible scales generate different versions of the nondimensional equations solved by the code. **SIMMSUS** has three possible choices of
+nondimensional equations implemented and for more details the reader can refer to [13]. 
+
+The important fact here is that the Stokes number provides a relation between the relaxation timescale
+of the particle with respect to a viscous dissipation timescale. For really
+small particles it is valid to assume $St \ll 1$, which leads us to neglect the
+effect of particle inertia. For inertialess (non-massive) particles in Creeping
+flow it is possible to obtain the velocity of a single particle by isolating $v$
+from the expression of $F_D$ and balancing this hydrodynamic force with other
+non-hydrodynamic forces. This is the context assumed by **SIMMSUS** when
+the user sets variable particle inertia as false in the configuration file **simconfig.dat**. When neglecting particle inertia and hydrodynamic interactions
+we assume that hydrodynamic forces will balance non-hydrodynamic forces. Since the $F_D \sim v$, in this context $v$ is calculated in a dimensional form
+through:
+
+<center><img src="gallery/eq7.png" width="200" height="60"></center>
+
+where **I** is the second-rank identity tensor and $F_{NH}$ denotes the sum of non-
+hydrodynamic forces. These non-hydrodynamic forces are long-range dipolar
+forces, Brownian, gravitational, repulsive and contact forces. It is interesting
+to notice here that expression above could be written in a compact form as
+
+<center><img src="gallery/eq8.png" width="180" height="50"></center>
+
+where the self-mobility matrix $M_s$ is simply **I**/$(6\pi \eta a)$. It is interesting to
+mention that even though we could be interested in simulating the behavior
+of really small particles, which could be considered as inertialess particles,
+the consideration of a small effect of particle inertia could be interesting
+for numerical purposes, since a non-null Stokes number produces a certain
+response time of the particles with respect to the forces acting on them.
+
+This small effect of particle inertia may be useful in order to reduce the noise
+provenient from Brownian motion and produce a cleaner numerical behavior.
+Previous tests have shown that this seems to be the case for the rotational
+movement of the particles. Therefore, the solution of the rotational motion of
+the particles in **SIMMSUS** always considers a small effect of particle inertia.
+A good value of the rotational Stokes number is 1.0E-01 which can be
+found on the beggining of file **main.f90**. 
+
+The subroutines responsible for solving the velocities of massive (with inertia) particles, their positions, angular velocities and evolving their dipole
+moments are respectively:
+
+- *resvel* ;
+- *respos*;
+- *resomega*;
+- *evoldip*;
+
+The arguments in each of these subroutines are:
+
+- `resvel(a,b,c,d)`, where a is the velocity component of a given particle in a
+given numerical experiment, b denotes the numerical time-step, c represents
+the Stokes number of the particle and d is the sum of all forces acting on the
+particle in a given direction;
+
+- `respos(a,b,c)`, where a is the position in a given direction of a given particle
+in a given numerical experiment, b denotes the numerical time-step and c is
+the associated particle velocity;
+
+- `resomega(a,b,c,d)`, where a is the rotational velocity component of a given
+particle in a given numerical experiment, b denotes the numerical time-step,
+c represents the rotational Stokes number of the particle and d is the sum of
+all torques acting on the particle in a given direction;
+
+- `evoldip(a,b,c,d,e,f)`, where a,b,c are the particles dipole moments in each
+direction, d and e are the angular velocities of the particle in the directions
+of the dipole moments of the same diretions as the dipole moments b and c
+and f is the numerical time-step;
+
+The evolution of the dipole moment of the particles is obtained through the solution of the simple kinematic equation:
+
+<center><img src="gallery/eq9.png" width="180" height="65"></center>
+
+where $\hat{d}$ is the direction of the particle’s dipole moment. Hence, **SIMMSUS**
+always assumes that the dipole moment of the particle is fixed on the particle.
+
 
 ## Initial condition
 
