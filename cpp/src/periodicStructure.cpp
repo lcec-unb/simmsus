@@ -80,35 +80,33 @@ for(a = 0; a < 5; a++){
 
             // Number of physical boxes
             s = auxper3[a] +  auxper2[b] + auxper[c];
-            ILF0[s - 1] = a - 1;
-            ILF1[s - 1] = b - 1;
-            ILF2[s - 1] = c - 1;
+            ILF0[s - 1] = a - 2;
+            ILF1[s - 1] = b - 2;
+            ILF2[s - 1] = c - 2;
         }
     }
 }
 
 // // Creating the initial configuration of all the physical lattices
-
-// for(a = 0; a < nb; a++){
-//     for(b = 0; b < numRealizations; b++){
-//         for(c = 0; c < numParticles; c++){
-//             XI0[a + numRealizations * (b + numParticles * c)] = X0[b * numParticles + c] + ILF0[a] * l;
-//             XI1[a + numRealizations * (b + numParticles * c)] = X1[b * numParticles + c] + ILF1[a] * l;
-//             XI2[a + numRealizations * (b + numParticles * c)] = X2[b * numParticles + c] + ILF2[a] * h;            
-//         }
-//     }
-// }
-
-// Creating the lattice's indeces in the reciprocal space
+for(a = 0; a < nb; a++){
+    for(b = 0; b < numRealizations; b++){
+        for(c = 0; c < numParticles; c++){            
+            XI0[a * numRealizations * numParticles + (b * numParticles) + c] = X0[b * numParticles + c] + ILF0[a] * l;
+            XI1[a * numRealizations * numParticles + (b * numParticles) + c] = X1[b * numParticles + c] + ILF1[a] * l;
+            XI2[a * numRealizations * numParticles + (b * numParticles) + c] = X2[b * numParticles + c] + ILF2[a] * h;            
+        }
+    }
+}
+// cout << nb * numRealizations * numParticles;
+// Creating the lattice's index in the reciprocal space
 for(a =  0; a < 3; a++){
     for(b = 0; b < 3; b++){
         for(c = 0; c < 3; c++){
             // Number of reciprocal lattices
-            s = auxperi3[a] + auxperi2[b] + auxperi[c];  
-            cout << s << "\t";
-            ILR0[s - 1] = a - 2;
-            ILR1[s - 1] = b - 2;
-            ILR2[s - 1] = c - 2;
+            s = auxperi3[a] + auxperi2[b] + auxperi[c];            
+            ILR0[s - 1] = a - 1;
+            ILR1[s - 1] = b - 1;
+            ILR2[s - 1] = c - 1;
         }
     }
 }
