@@ -189,13 +189,36 @@ considers a mobility formulation, which neglects the effect of particle inertia.
 Therefore, when considering hydrodynamic interactions we recommend the
 user to disable variable `particle inertia` in **simconfig.dat**.
 
-
-
-
-
 ## Brownian motion and random numbers
 
+In order to run the particle simulations random numbers must be generated.
+These random numbers are important to create random independent initial
+conditions and to compute Brownian forces and torques. Bellow we show
+a typical initial particle distribution that can be produced by SIMMSUS. Figure (a) shows an initial ordered distribution of particles while figure (b)
+illustrates a random initial distribution of particles.
+
+<center><img src="gallery/particle_ic.png" width="500" height="200"></center>
+
+Not only the initial particle distribution can be ordered or random, but also the initial dipole orientation, as shown in the picture bellow.
+
+<center><img src="gallery/dipole_ic.png" width="500" height="220"></center>
+
+As we have mentioned, random numbers must also be generated in order to simulate the typical random walks produced by a particle in Brownian motion, as shown bellow:
+
 <center><img src="gallery/random_walk.png" width="340" height="320"></center>
+
+The subroutine responsible for generating the sequences of random numbers used in a typical simulation is called randomica. This subroutine is defined in terms of the following arguments:
+
+`randomica(a,b,c,n,d)`
+
+ where a,b,c,n,d denote
+
+- a,b → the range of the random sequence;
+- c → is a vector containing the random sequence generated;
+- n → is the number of elements in vector c;
+- d → is an integer used to produce a random seed for the random sequence that is being produced;
+  
+We have opted for implementing a customized subroutine for generating the random numbers used in our simulations instead of using the native random number FORTRAN subroutine. We have chosen this option due to several statistical tests performed in the beggining of the development of SIMMSUS used to validate the implementation of Brownian forces and torques. We have compared the ensemble average of the mean square displacement of a single Brownian particle as a function of time with Einstein’s theory and have found an excellent agreement using the implemented random number generation routine in SIMMSUS. For more details the user can consult reference [13].
 
 ## Dipolar forces and torques
 
@@ -203,9 +226,7 @@ user to disable variable `particle inertia` in **simconfig.dat**.
 
 ## Initial condition
 
-<center><img src="gallery/particle_ic.png" width="500" height="200"></center>
 
-<center><img src="gallery/dipole_ic.png" width="500" height="220"></center>
 
 ## Field excitations
 
@@ -259,3 +280,5 @@ user to disable variable `particle inertia` in **simconfig.dat**.
 [11] Berkov, D. V., L. Yu Iskakova, and A. Yu Zubarev. "Theoretical study of the magnetization dynamics of nondilute ferrofluids." Physical Review E—Statistical, Nonlinear, and Soft Matter Physics 79.2 (2009): 021407. [DOI:10.1103/PhysRevE.79.021407](https://doi.org/10.1103/PhysRevE.79.021407).
 
 [12] Ewald, P. "Die Berechnung optischer und elektrostatischer Gitterpotentiale". Annalen der Physik. 369 (3): 253–287. [DOI:10.1002/andp.19213690304](https://doi:10.1002/andp.19213690304).
+
+[13] Gontijo, R. G. "Micromechanics and microhydrodynamics of magnetic suspensions (in Portuguese)". PhD Thesis, Graduate Program in Mechanical Sciences, University of Brasília, [DOI:10.13140/RG.2.1.1181.2563]([https://doi:10.1002/andp.19213690304](https://tinyurl.com/3wc5nzp6)).
