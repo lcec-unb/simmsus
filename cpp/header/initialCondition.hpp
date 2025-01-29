@@ -14,7 +14,7 @@
 #ifndef SRC_HEADERS_INITIALCONDITION_HPP_
 #define SRC_HEADERS_INITIALCONDITION_HPP_
 
-void initialCondition(bool initialSphericalAggregate, bool ordenado, double *X0, double *X1, double *X2);
+void initialCondition(bool initialSphericalAggregate, bool ordenado);
 
 
 #endif /* SRC_HEADERS_INITIALCONDITION_HPP_ */

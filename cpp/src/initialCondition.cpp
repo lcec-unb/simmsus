@@ -23,10 +23,13 @@
  2 - An ordered NxNxN array of particles 	  
  3 - An initial spherical aggregate		  
 *************************************************/
+#include <iostream>
 #include <header/globals.hpp>
 #include <header/randomic.hpp>
 #include <header/initialCondition.hpp>
 #include <math.h>
+using namespace std;
+
 void initialCondition(bool initialSphericalAggregate, bool ordenado){
 
 //Calculating the aggregate's radius   
@@ -220,5 +223,6 @@ if(initialSphericalAggregate) {
                 } 
 }
     }
+}
 }
 }
