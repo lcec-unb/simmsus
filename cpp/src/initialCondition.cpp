@@ -39,11 +39,19 @@ double ragreg = pow((numParticles / phi),(1.0/3.0));
 l = 100.0 * ragreg;
 h = l;
 double r, nr1, nr2, nr3, modrand;
-double *nr = new double[3 * numParticles * numRealizations];
-double *nra = new double[3 * numParticles * numRealizations];
-double *nrs = new double[3];
-randomic(-1.0,1.0,(3 * numParticles * numRealizations),nr);
-randomic(0.0,1.0,(3 * numParticles * numRealizations),nra);
+int total = 3 * numParticles * numRealizations;
+double *nr = new double[total]{};
+double *nra = new double[total]{};
+double *nrs = new double[3]{};
+int *nr0Index = new int[total]{};
+int *nr1Index = new int[total]{};
+int *nr2Index = new int[total]{};
+randomic(-1.0,1.0,(total),nr);
+radomicAccess(0,total - 1,(total),nr0Index);
+radomicAccess(0,total - 1,(total),nr1Index);
+radomicAccess(0,total - 1,(total),nr2Index);
+randomic(-1.0,1.0,(total),nr);
+randomic(0.0,1.0,(total),nra);
 
 // If we are starting a new simulation, { we will check if the initial condition is a spherical aggregate
 if(initialSphericalAggregate) {
@@ -62,21 +70,21 @@ if(initialSphericalAggregate) {
         for(int i = 0; i < numParticles; i++){
             // Range of X position of the particles in the aggregate
             // verificar se precisa somar 1 ao i e j -> Fortran C++
-            X0[j * numRealizations + i] = xcentro + (xmax - xmin) * 0.5 * nr[(i * 2 + (i - 2) + (numParticles * 3 * (j - 1)))];
+            X0[j * numParticles + i] = xcentro + (xmax - xmin) * 0.5 * nr[nr0Index[j * numParticles + i]];
 
             // Using the circle equation to distribute the particles in the y direction (sphere projection on a xy plane)
-            double yc = pow(pow(ragreg,2.0) - pow(X0[j * numRealizations + i] - xcentro,2.0),0.5);
+            double yc = pow(pow(ragreg,2.0) - pow(X0[j * numParticles + i] - xcentro,2.0),0.5);
             ymin = ycentro - yc;
             ymax = ycentro + yc;
 
-            X1[j * numRealizations + i] = ycentro +(ymax - ymin) * 0.5 * nr[(i * 2 + (i - 1) + (numParticles * 3 * (j - 1)))];
+            X1[j * numParticles + i] = ycentro +(ymax - ymin) * 0.5 * nr[nr1Index[j * numParticles + i]];
 
             // Using the circle equation to define the z positions considering now the sphere projection on planes zy and zx
-            double zc = pow(pow(ragreg,2.0) - pow(X0[j * numRealizations + i] - xcentro,2.0) - pow(X1[j * numRealizations + i] - ycentro,2.0),0.5);    
+            double zc = pow(pow(ragreg,2.0) - pow(X0[j * numParticles + i] - xcentro,2.0) - pow(X1[j * numParticles + i] - ycentro,2.0),0.5);    
             zmin = zcentro - zc;
             zmax = zcentro + zc;
 
-            X2[j * numRealizations + i] = zcentro +(zmax - zmin) * 0.5 * nr[(i * 2 + i +(numParticles * 3 * (j - 1)))];
+            X2[j * numParticles + i] = zcentro +(zmax - zmin) * 0.5 * nr[nr2Index[j * numParticles + i]];
         }
     }
 } else {
@@ -113,9 +121,9 @@ if(initialSphericalAggregate) {
                 int a = i - loop * pow(numParticles,(1.0/3.0));
                 int b = 1 + loop - auxiliar1 * pow(numParticles,(1.0/3.0));
                 int c = i / pow(numParticles,(2.0/3.0));            
-                X0[j * numRealizations + i] = l / x012 + a * (l-(l / x0120));
-                X1[j * numRealizations + i] = l / x012 + b * (l-(l / x0120));
-                X2[j * numRealizations + i] = h / x012 + c * (h-(h / x0120));
+                X0[j * numParticles + i] = l / x012 + a * (l-(l / x0120));
+                X1[j * numParticles + i] = l / x012 + b * (l-(l / x0120));
+                X2[j * numParticles + i] = h / x012 + c * (h-(h / x0120));
             }
         }
 }else{
@@ -124,9 +132,9 @@ if(initialSphericalAggregate) {
 
     for(int j = 0; j < numRealizations; j++){
         for(int i = 0; i < numParticles; i++){
-            X0[j * numRealizations + i] = l * nra[i * 2 + (i - 2) + (numParticles * 3 * (j - 1))];
-            X1[j * numRealizations + i] = l * nra[(i * 2 + (i - 1) + (numParticles * 3 * (j - 1)))];
-            X2[j * numRealizations + i] = h * nra[(i * 2 + (i) + (numParticles * 3 * (j - 1)))];
+            X0[j * numParticles + i] = l * nra[nr0Index[j * numParticles + i]]; 
+            X1[j * numParticles + i] = l * nra[nr1Index[j * numParticles + i]]; 
+            X2[j * numParticles + i] = h * nra[nr2Index[j * numParticles + i]]; 
         }
     }
 
@@ -140,7 +148,7 @@ if(initialSphericalAggregate) {
                     if(i != j){
 
                         // Calculate the distance between all the pair of particles in the suspension
-                        r = pow(pow(X0[k* numRealizations + i] - X0[k* numRealizations + j],2.0) + pow(X1[k* numRealizations + i]-X1[k* numRealizations + j],2.0) + pow(X2[k* numRealizations + i] - X2[k* numRealizations + j],2.0),0.5);
+                        r = pow(pow(X0[k* numParticles + i] - X0[k* numParticles + j],2.0) + pow(X1[k* numParticles + i]-X1[k* numParticles + j],2.0) + pow(X2[k* numParticles + i] - X2[k* numParticles + j],2.0),0.5);
 
                         // If at any point the distance is smaller { 0.01*a, { we give a Brownian kick in the overlaped particles
                         if(r <= 2.01){
@@ -171,7 +179,7 @@ if(initialSphericalAggregate) {
 
                         }
                     // Calculate the new distance between the "problematic" particles
-                    r = pow(pow(X0[k* numRealizations + i] - X0[k* numRealizations + j],2.0) + pow(X1[k* numRealizations + i]-X1[k* numRealizations + j],2.0) + pow(X2[k* numRealizations + i] - X2[k* numRealizations + j],2.0),0.5);
+                    r = pow(pow(X0[k* numParticles + i] - X0[k* numParticles + j],2.0) + pow(X1[k* numParticles + i]-X1[k* numParticles + j],2.0) + pow(X2[k* numParticles + i] - X2[k* numParticles + j],2.0),0.5);
 
 
                     // If at any point the particles are still overlaped we give new 
@@ -216,9 +224,9 @@ if(initialSphericalAggregate) {
                
                 for(int j = 0; j < numRealizations; j++){
                     for(int i = 0; i < numParticles; i++){
-                        U0[j * numRealizations + i] = 0.0;
-                        U1[j * numRealizations + i] = 0.0;
-                        U2[j * numRealizations + i] = -1.0;
+                        U0[j * numParticles + i] = 0.0;
+                        U1[j * numParticles + i] = 0.0;
+                        U2[j * numParticles + i] = -1.0;
                     }
                 } 
 }

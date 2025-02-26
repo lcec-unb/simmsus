@@ -16,99 +16,99 @@
 * Subroutine responsible for creating an initial distribution 
 * of the dipole moments of all particles in all realizations
 ****************************************************************/
-#include <globals.hpp>
-#include <randomic.hpp>
+#include <header/globals.hpp>
+#include <header/randomic.hpp>
 #include <math.h>
-void distributeDipole(double *a, b, c){
-// b = number of realizations, c= number of particles
+#include <iostream>
+#include <iomanip>
 
-//real a(b,c,3); // Dipoles
-double d,e; // modip
-int f, i, j; 
+
+void distributeDipole(bool orderedDipoles, double percentNonMagPart, bool mixMagNonMagPart){
+
+int e, i, j; 
+double modip;
+int total = 3 * numParticles * numRealizations;
+double *nr = new double[total]{};
+int *nr0Index = new int[total]{};
+int *nr1Index = new int[total]{};
+int *nr2Index = new int[total]{};
+randomic(-1.0,1.0,(total),nr);
+radomicAccess(0,total - 1,(total),nr0Index);
+radomicAccess(0,total - 1,(total),nr1Index);
+radomicAccess(0,total - 1,(total),nr2Index);
 
 // If dipoles are distributed in an ordered way
 
-if(dipolo_ordenado) {
+if(orderedDipoles) {
 
     for(j = 0; j < numRealizations; j++){
         for(i = 0; i < numParticles; i++){
-            a(j,i,1) = 0.0;
-            a(j,i,2) = 1.0;
-            a(j,i,3) = 0.0;
+            DI0[j * numParticles + i] = 0.0;
+            DI1[j * numParticles + i] = 1.0;
+            DI2[j * numParticles + i] = 0.0;
         }
     }
 }
 else{
 // For a random dipole distribution
-e = percentual * c;
-f = e;
-
-randomic(-1.0,1.0,,(3*N*rea),);
+e = percentNonMagPart * numParticles;
 
 // If we are mixing magnetic particles with non magnetic ones...
-if(mistura){
-    for(j = 0; j < b; j++){
-        for(i = f+1; i < f; i++){ 
-            a(j,i,1) = 0.0;
-            a(j,i,2) = 0.0;
-            a(j,i,3) = 0.0;    
+if(mixMagNonMagPart){
+    for(j = 0; j < numRealizations; j++){
+        for(i = e + 1; i < numParticles; i++){ 
+            DI0[j * numParticles + i] = 0.0;
+            DI1[j * numParticles + i] = 0.0;
+            DI2[j * numParticles + i] = 0.0;  
         }
     }
 
-    for(j = 0; j < b; j++){
-        for(i = f+1; i < c; i++){ 
-            a(j,i,1)= nr((i*2+(i-2)+(c*3*(j-1))));
-            a(j,i,2)= nr((i*2+(i-1)+(c*3*(j-1))));
-            a(j,i,3)= nr((i*2+(i)+(c*3*(j-1))));
+    for(j = 0; j < numRealizations; j++){
+        for(i = 0; i = e; i++){ 
+            DI0[j * e + i] = nr[nr0Index[j * numParticles + i]]; 
+            DI1[j * e + i] = nr[nr1Index[j * numParticles + i]];
+            DI2[j * e + i] = nr[nr2Index[j * numParticles + i]];            
         }
     }
  
 
 // Normalizing the vectors
-    for(j = 0; j < b; j++){
-        for(i = f; i < f; i++){ 
-            a(j,i,1) = 0.0;
-            a(j,i,2) = 0.0;
-            a(j,i,3) = 0.0;
+    for(j = 0; j < numRealizations; j++){
+        for(i = e + 1; i < numParticles; i++){ 
+            DI0[j * numParticles + i] = 0.0;
+            DI1[j * numParticles + i] = 0.0;
+            DI2[j * numParticles + i] = 0.0;
         }
     }
 
-    for(j = 0; j < b; j++){
-        for(i = f+1; i < numParticles; i++){  
-            d = pow(pow(a(j,i,1),2.0) + (pow(a(j,i,2),2.0)) + (pow(a(j,i,3),2.0)),0.5);
-            a(j,i,1) /= d;
-            a(j,i,2) /= d;
-            a(j,i,3) /= d;
+    for(j = 0; j < numRealizations; j++){
+        for(i = 0; i = e ; i++){  
+            modip = pow(pow(DI0[j * e + i],2.0) + (pow(DI1[j * e + i],2.0)) + (pow(DI2[j * e + i],2.0)),0.5);
+            DI0[j * e + i] /= modip;
+            DI1[j * e + i] /= modip;
+            DI2[j * e + i] /= modip;
         }
     }
- 
-Di = a;
 }
 else{
 // If all the particles are magnetic particles, {...
-
- 
-    for(j = 0; j < b; j++){
-        for(i = f+1; i < c; i++){ 
-            a(j,i,1)= nr((i*2+(i-2)+(c*3*(j-1))));
-            a(j,i,2)= nr((i*2+(i-1)+(c*3*(j-1))));
-            a(j,i,3)= nr((i*2+(i)+(c*3*(j-1))));
-        }
-    }
-
-
-// Normalizing the vectors
-
-
     for(j = 0; j < numRealizations; j++){
         for(i = 0; i < numParticles; i++){
-            d= pow(pow(a(j,i,1),2.0)+ pow(a(j,i,2),2.0)+ pow(a(j,i,3),2.0),0.5);
-            a(j,i,1) /= d;
-            a(j,i,2) /= d;
-            a(j,i,3) /= d;
+            DI0[j * numParticles + i] = nr[nr0Index[j * numParticles + i]]; 
+            DI1[j * numParticles + i] = nr[nr1Index[j * numParticles + i]];
+            DI2[j * numParticles + i] = nr[nr2Index[j * numParticles + i]];            
         }
     }
-    Di = a;
+//    std::cout << "Chegou aqui!" << "\n";
+   // Normalizing the vectors
+    for(j = 0; j < numRealizations; j++){
+        for(i = 0; i < numParticles; i++){
+            modip = pow(pow(DI0[j * numParticles + i],2.0)+ pow(DI1[j * numParticles + i],2.0)+ pow(DI2[j * numParticles + i],2.0),0.5);
+            DI0[j * numParticles + i] /= modip;
+            DI1[j * numParticles + i] /= modip;
+            DI2[j * numParticles + i] /= modip;            
+        }
+    }
     }
 }
 

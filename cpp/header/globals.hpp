@@ -36,4 +36,5 @@ extern double *U0, *U1, *U2;
 extern double *XI0, *XI1, *XI2;
 extern double *ILF0, *ILF1, *ILF2;
 extern double *ILR0, *ILR1, *ILR2;
+extern double *DI0, *DI1, *DI2;
 #endif /* SRC_HEADERS_GLOBALS_HPP_ */

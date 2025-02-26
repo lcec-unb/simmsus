@@ -29,3 +29,4 @@ double *U0, *U1, *U2;
 double *XI0, *XI1, *XI2;
 double *ILF0, *ILF1, *ILF2;
 double *ILR0, *ILR1, *ILR2;
+double *DI0, *DI1, *DI2;

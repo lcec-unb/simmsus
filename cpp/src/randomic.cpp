@@ -30,5 +30,22 @@ void randomic(double start, double end, int total, double *rndNArray){
     std::mt19937 e2(seed2);   
   
     for (int n = 0; n < total; ++n)
-        rndNArray[n] = std::round(uniform_dist(e2));
+        rndNArray[n] = uniform_dist(e2);
+
+}
+
+void radomicAccess(double start, double end, int total, int *rndNArray){
+
+// Seed with a real random value, if available
+    std::random_device r;
+// Choose a random mean between start and end
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<int> uniform_dist(start, end);
+   
+    // Generate a normal distribution around that mean
+    std::seed_seq seed2{r()};
+    std::mt19937 e2(seed2);   
+  
+    for (int n = 0; n < total; ++n)
+        rndNArray[n] = uniform_dist(e2);
 }

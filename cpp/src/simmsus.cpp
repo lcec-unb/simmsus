@@ -20,6 +20,8 @@
 #include <header/boxSize.hpp>
 #include <header/greenTable.hpp>
 #include <header/periodicStructure.hpp>
+#include <header/initialCondition.hpp>
+#include <header/dipoleDistribute.hpp>
 
 // #include <brownian.hpp>
 // #include <repulsion.hpp>
@@ -55,21 +57,24 @@ double *cof18 = NULL;
 const int nGreen = 10000;
 
 //Globals Initializations
-X0 = new double[numRealizations * numParticles];
-X1 = new double[numRealizations * numParticles];
-X2 = new double[numRealizations * numParticles];
-U0 = new double[numRealizations * numParticles];
-U1 = new double[numRealizations * numParticles];
-U2 = new double[numRealizations * numParticles];
-XI0 = new double[nb * numRealizations * numParticles];
-XI1 = new double[nb * numRealizations * numParticles];
-XI2 = new double[nb * numRealizations * numParticles];
-ILF0 = new double[125];
-ILF1 = new double[125];
-ILF2 = new double[125];
-ILR0 = new double[27];
-ILR1 = new double[27];
-ILR2 = new double[27];
+X0 = new double[numRealizations * numParticles]{};
+X1 = new double[numRealizations * numParticles]{};
+X2 = new double[numRealizations * numParticles]{};
+U0 = new double[numRealizations * numParticles]{};
+U1 = new double[numRealizations * numParticles]{};
+U2 = new double[numRealizations * numParticles]{};
+XI0 = new double[nb * numRealizations * numParticles]{};
+XI1 = new double[nb * numRealizations * numParticles]{};
+XI2 = new double[nb * numRealizations * numParticles]{};
+ILF0 = new double[125]{};
+ILF1 = new double[125]{};
+ILF2 = new double[125]{};
+ILR0 = new double[27]{};
+ILR1 = new double[27]{};
+ILR2 = new double[27]{};
+DI0 = new double[numRealizations * numParticles]{};
+DI1 = new double[numRealizations * numParticles]{};
+DI2 = new double[numRealizations * numParticles]{};
 
 
 shearratei = configuration.getDynincrshrate(); //! shear-rate -> Arquivo de configuracao
@@ -103,7 +108,12 @@ particleDistribution(configuration.getMonopolidisp(), diam, betaVec);
 // by the user in the simconfig.dat
 
 boxSize(numParticles, configuration.getVolumefracpart(), configuration.getBoxaspectratio(), configuration.getInitialspheraggr());
-// //initial condition
+
+if(configuration.getMp()){ 
+
+    distributeDipole(configuration.getOrdereddipoles(), configuration.getPercentnonmagpart(), configuration.getMixmagnonmagpart());    
+}
+initialCondition(configuration.getInitialspheraggr(),configuration.getOrdereddipoles());
 
 double qsi = pow(M_PI,0.5)  / (pow(l * l * h,(1.0/3.0)));
 
@@ -197,15 +207,15 @@ if(periodicity){
     }
 }
 periodicStructure();
-for(int j = 0; j < numRealizations; j++){
-    for(int i = 0; i < numParticles; i++){
-        cout << X0[j * numRealizations + i] << "\t" << X1[j * numRealizations + i] << "\t" << X2[j * numRealizations + i];
-        cout << U0[j * numRealizations + i] << "\t" << U1[j * numRealizations + i] << "\t" << U2[j * numRealizations + i];
-    }
+
+for(int j = 0; j < 1; j++){
+    cout << numParticles << "\n";
+    for(int i = 0; i < numParticles; i++){        
+        cout << "Fe" << "\t" << X0[j * numParticles + i] << "\t" << X1[j * numParticles + i] << "\t" << X2[j * numParticles + i] << "\t";
+        cout << DI0[j * numParticles + i] << "\t" << DI1[j * numParticles + i] << "\t" << DI2[j * numParticles + i] << "\t" << diam[j * numParticles + i];
+        cout << "\n";
+    }    
 }
-
-cout << "END\n";
-
 
 //free memory
 
@@ -224,6 +234,9 @@ delete[] ILF2;
 delete[] ILR0;
 delete[] ILR1;
 delete[] ILR2;
+delete[] DI0;
+delete[] DI1;
+delete[] DI2;
 
 if(cof01 != NULL)
     delete[] cof01;

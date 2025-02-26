@@ -18,4 +18,6 @@
 
 void randomic(double start, double end, int total, double *rndNArray);
 
+void radomicAccess(double start, double end, int total, int *rndNArray);
+
 #endif /* SRC_HEADERS_RANDOMIC_HPP_ */

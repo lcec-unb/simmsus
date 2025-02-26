@@ -16,7 +16,7 @@ CCFLAGS= -O0
 INC_DIR = .
 CC=g++
 LDFLAGS=
-OBJ= config.o simmsus.o globals.o boxSize.o particleDistribution.o randomic.o greenTable.o periodicStructure.o initialCondition.o
+OBJ= config.o simmsus.o globals.o boxSize.o particleDistribution.o randomic.o greenTable.o periodicStructure.o initialCondition.o dipoleDistribute.o
 
 all: simmsus
 
@@ -45,7 +45,10 @@ periodicStructure.o: $(SRC_DIR)/periodicStructure.cpp
 	$(CC) $(CCFLAGS) -I$(INC_DIR) $(LDFLAGS) -c $<				
 
 initialCondition.o: $(SRC_DIR)/initialCondition.cpp
-	$(CC) $(CCFLAGS) -I$(INC_DIR) $(LDFLAGS) -c $<				
+	$(CC) $(CCFLAGS) -I$(INC_DIR) $(LDFLAGS) -c $<
+
+dipoleDistribute.o: $(SRC_DIR)/dipoleDistribute.cpp
+	$(CC) $(CCFLAGS) -I$(INC_DIR) $(LDFLAGS) -c $<								
 
 simmsus.o: $(SRC_DIR)/simmsus.cpp
 	$(CC) $(CCFLAGS) -I$(INC_DIR) $(LDFLAGS) -c $<
