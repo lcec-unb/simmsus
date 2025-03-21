@@ -22,7 +22,45 @@ choice1=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 
+
 # MENU 1.1 
+   
+HEIGHT=15
+WIDTH=40
+CHOICE_HEIGHT=15
+
+number_particles=""
+number_rea=""
+sim_time=""
+time_step=""
+write_interval=""
+phi=""
+aspect_ratio=""
+exec 3>&1
+
+form8=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Essential data" \
+--form "\nSimulation parameters" 40 60 25 \
+"Number of particles:" 1 1 "$number_particles" 1 40 8 25 \
+"Number of experiments:" 2 1 "$number_rea" 2 40 8 25 \
+"Simulation time:" 3 1 "$sim_time" 3 40 8 25 \
+"Numerical time step:" 4 1 "$time_step" 4 40 8 25 \
+"Write interval:" 5 1 "$write_interval" 5 40 8 25 \
+"Volume fraction:" 6 1 "$phi" 6 40 8 25 \
+"Box aspect ratio:" 7 1 "$aspect_ratio" 7 40 8 25 \
+2>&1 1>&3)
+
+exec 3>&-
+
+number_particles=$(echo "$form8" | sed -n 1p)
+number_rea=$(echo "$form8" | sed -n 2p)
+sim_time=$(echo "$form8" | sed -n 3p)
+time_step=$(echo "$form8" | sed -n 4p)
+write_interval=$(echo "$form8" | sed -n 5p)
+phi=$(echo "$form8" | sed -n 6p)
+aspect_ratio=$(echo "$form8" | sed -n 7p)
+clear
+
+# MENU 1.2 
 
 case $choice1 in
         1) 
@@ -58,7 +96,59 @@ clear   ;;
 
 esac
 
+# MENU 1.2
 
+case $choice1 in
+        1) 
+      
+         
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Compute dipolar forces periodically?" 7 60
+        choice1_2=$?
+clear   ;;
+
+        3) 
+        
+        HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Compute dipolar forces periodically?" 7 60
+        choice1_2=$?
+clear   ;; 
+esac
+
+# MENU 1.3
+
+case $choice1_1 in
+	0)
+
+	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Compute dipolar torques periodically?" 7 60
+        choice1_3=$?
+clear   ;; 
+esac
 
 # MENU 2 
    
@@ -101,6 +191,49 @@ choice3=$(dialog --clear \
                 "${OPTIONS[@]}" \
                 2>&1 >/dev/tty)
 clear
+
+ case $choice3 in
+1) # MENU 3.1 
+
+HEIGHT=15
+WIDTH=40
+CHOICE_HEIGHT=15
+
+stokesnumber=""
+
+exec 3>&1
+
+form3_1=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Inertial effects" \
+--form "\nParticle Stokes number" 25 60 16 \
+"St:" 1 1 "$stokesnumber" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+stokesnumber=$(echo "$form3_1" | sed -n 1p)
+
+
+clear ;; 
+
+2) # MENU 3.2 
+
+# MENU 5 
+   
+HEIGHT=15
+WIDTH=40
+CHOICE_HEIGHT=15
+BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Do you want to consider hydrodynamic interactions?" 7 60
+       
+       choice3_2=$?
+clear
+esac
+  
 
 # MENU 4 
    
@@ -449,47 +582,58 @@ esac
 
    
     case $choice1 in
-        1) echo "Choice 1 - option 1";; # some action on 1
-        2) echo "Choice 1 - option 2";; # some action on 2
-        3) echo "Choice 1 - option 3";; # some action on other
+        1) echo "Choice 1 - option 1";; 
+        2) echo "Choice 1 - option 2";; 
+        3) echo "Choice 1 - option 3";; 
+    esac
+
+    case $choice1 in
+        1) echo "Choice 1.2 - option" $choice1_2;; 
+        3) echo "Choice 1.2 - option" $choice1_2;; 
     esac
     
+    
     case $choice1_1 in
-        0) echo "Choice 1.1 - option 1";; # some action on 1
-        1) echo "Choice 1.1 - option 2";; # some action on 2
+        0) echo "Choice 1.3 - option" $choice1_3;; 
     esac
     
     case $choice2 in
-        1) echo "Choice 2 - option 1";; # some action on 1
-        2) echo "Choice 2 - option 2";; # some action on 2
+        1) echo "Choice 2 - option 1";; 
+        2) echo "Choice 2 - option 2";; 
     esac
     
     case $choice3 in
-        1) echo "Choice 3 - option 1";; # some action on 1
-        2) echo "Choice 3 - option 2";; # some action on 2
+        1) echo "Choice 3 - option 1";; 
+        2) echo "Choice 3 - option 2";; 
+    esac
+    
+    case $choice3 in
+        1) echo "Choice 3 - option 1 - Stokes =" $stokesnumber;; 
+        2) echo "Choice 3.2" $choice3_2 ;;
     esac
     
     case $choice4 in
-        1) echo "Choice 4 - option 1";; # some action on 1
-        2) echo "Choice 4 - option 2";; # some action on 2
+        1) echo "Choice 4 - option 1";; 
+        2) echo "Choice 4 - option 2";; 
     esac
     case $choice5 in
-        0) echo "Choice 5 - option YES";; # some action on 1
-        1) echo "Choice 5 - option NO";; # some action on 2
+        0) echo "Choice 5 - option YES";; 
+        1) echo "Choice 5 - option NO";; 
     esac
     case $choice6 in
-        0) echo "Shear amplitude and frequency:" $shearamplitude, $shearfrequency;; # some action on 1
-        1) echo "Shear amplitude:" $shearamplitude;; # some action on 1
+        0) echo "Shear amplitude and frequency:" $shearamplitude, $shearfrequency;; 
+        1) echo "Shear amplitude:" $shearamplitude;; 
     esac
     case $choice7 in
-        0) echo "Choice 7 - option YES";; # some action on 1
-        1) echo "Choice 7 - option NO";; # some action on 2
+        0) echo "Choice 7 - option YES";; 
+        1) echo "Choice 7 - option NO";; 
     esac
     case $choice8 in
-        1) echo "Choice 8 - option 1 - alpha =" $alpha;; # some action on 1
-        2) echo "Choice 8 - option 2 - alpha, omega =" $alpha, $omega_field;; # some action on 2
-        3) echo "Choice 8 - option 3 - alpha, omega =" $alpha, $omega_field;; # some action on 2
-        4) echo "Choice 8 - option 4 - alpha, omega1, omega2 =" $alpha, $omega_field, $omega_field2;; # some action on 2
-        5) echo "Choice 8 - option 5 - alpha, omega, C1,C2,C3,C4 =" $alpha, $omega_field, $c1_duffing, $c2_duffing, $c3_duffing, $c4_duffing ;; # some action on 2
-    	6) echo "Choice 8 - option 6 - alpha, omega_min, omega_max, number_intervals  =" $alpha, $omega_field, $max_omega, $numberintdyn ;; # some action on 2     
+        1) echo "Choice 8 - option 1 - alpha =" $alpha;; 
+        2) echo "Choice 8 - option 2 - alpha, omega =" $alpha, $omega_field;; 
+        3) echo "Choice 8 - option 3 - alpha, omega =" $alpha, $omega_field;; 
+        4) echo "Choice 8 - option 4 - alpha, omega1, omega2 =" $alpha, $omega_field, $omega_field2;; 
+        5) echo "Choice 8 - option 5 - alpha, omega, C1,C2,C3,C4 =" $alpha, $omega_field, $c1_duffing, $c2_duffing, $c3_duffing, $c4_duffing ;; 
+    	6) echo "Choice 8 - option 6 - alpha, omega_min, omega_max, number_intervals  =" $alpha, $omega_field, $max_omega, $numberintdyn ;;    
     esac
+    echo "N,Nrea,time,time_step,write_interval =" $number_particles, $number_rea, $sim_time, $time_step, $write_interval, $phi, $aspect_ratio
