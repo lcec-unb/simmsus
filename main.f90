@@ -90,6 +90,8 @@ qsi=1.0*((pi**0.5)/((l*l*h)**(1.0/3.0))) ! convergence parameter for the periodi
 ! And building the periodic structure to compute
 ! the Ewald summations
 
+k=0
+
 if(periodicidade) then
  call tabelagreen(qsi,l,nb,nbr,h)
  call estrutura_periodica

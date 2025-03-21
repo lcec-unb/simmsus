@@ -22,6 +22,44 @@ choice1=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 
+# MENU 1.1 
+
+case $choice1 in
+        1) 
+        
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Do you want to consider rotating particles?" 7 60
+        choice1_1=$?
+clear   ;; 
+
+
+        3) 
+        
+        HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Do you want to consider rotating particles?" 7 60
+        choice1_1=$?
+clear   ;; 
+
+esac
+
+
+
 # MENU 2 
    
 HEIGHT=15
@@ -100,6 +138,7 @@ dialog --clear \
        
        choice5=$?
 clear
+
 
     case $choice5 in
 0) # MENU 6 
@@ -413,6 +452,11 @@ esac
         1) echo "Choice 1 - option 1";; # some action on 1
         2) echo "Choice 1 - option 2";; # some action on 2
         3) echo "Choice 1 - option 3";; # some action on other
+    esac
+    
+    case $choice1_1 in
+        0) echo "Choice 1.1 - option 1";; # some action on 1
+        1) echo "Choice 1.1 - option 2";; # some action on 2
     esac
     
     case $choice2 in

@@ -473,8 +473,10 @@ end do
 end do
 end do
 
-if(k.eq.1)then
-open(872,file='condicao_inicial_periodica.plt')
+
+
+if(k.eq.0)then
+open(872,file='typical_initial_lattice.plt')
 write(872,*)'Variables= "X1","X2","X3"'
 do a=1,nb
 do b=1,N
