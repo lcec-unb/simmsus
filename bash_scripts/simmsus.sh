@@ -22,6 +22,67 @@ choice1=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 
+# MENU 1.0 
+
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Non-inertial observer (flucutation mode)?" 7 60
+        choice1_0=$?
+clear 
+
+
+# MENU 1.05 
+
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Monte Carlo simulations?" 7 60
+        choice1_05=$?
+clear 
+
+# MENU 1.06 
+
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Do you want to continue an old simulation?" 7 60
+        choice1_06=$?
+clear 
+
+
+# MENU 1.07 
+
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+	BACKTITLE="SIMMSUS - Simulation of Magnetic Suspensions"
+	TITLE="Suspension data"
+
+dialog --clear \
+       --backtitle "$BACKTITLE" \
+       --title "$TITLE" \
+       --yesno "Do you want to consider particle polidispersity?" 7 60
+        choice1_07=$?
+clear 
 
 # MENU 1.1 
    
@@ -59,6 +120,32 @@ write_interval=$(echo "$form8" | sed -n 5p)
 phi=$(echo "$form8" | sed -n 6p)
 aspect_ratio=$(echo "$form8" | sed -n 7p)
 clear
+
+# MENU 1.15 
+
+case $choice1 in
+        3) 
+        
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+
+        percentnonmagpart=""
+
+exec 3>&1
+
+form1_15=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Particle distribution" \
+--form "Percentage of non-magnetic particles" 25 60 16 \
+" % of non-magnetic particles:" 1 1 "$percentnonmagpart" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+percentnonmagpart=$(echo "$form1_15" | sed -n 1p)
+    
+        
+clear   ;; 
+esac
 
 # MENU 1.2 
 
@@ -587,11 +674,22 @@ esac
         3) echo "Choice 1 - option 3";; 
     esac
 
+    echo "Choice 1.0 - option" $choice1_0
+    
+    echo "Choice 1.05 - option" $choice1_05
+    
+    echo "Choice 1.06 - option" $choice1_06
+    
+    echo "Choice 1.06 - option" $choice1_07
+    
     case $choice1 in
         1) echo "Choice 1.2 - option" $choice1_2;; 
         3) echo "Choice 1.2 - option" $choice1_2;; 
     esac
     
+     case $choice1 in
+        3) echo "% of non-mag particles" $percentnonmagpart;; 
+    esac
     
     case $choice1_1 in
         0) echo "Choice 1.3 - option" $choice1_3;; 
