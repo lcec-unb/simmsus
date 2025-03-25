@@ -22,6 +22,51 @@ choice1=$(dialog --clear \
                 2>&1 >/dev/tty)
 clear
 
+# MENU 1.01
+
+case $choice1 in
+        1) 
+        
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+lambda=""
+
+exec 3>&1
+
+form1_01=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Magnetic effects" \
+--form "Dipolar coupling parameter" 25 60 16 \
+"Lambda or Psi_m:" 1 1 "$lambda" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+lambda=$(echo "$form1_01" | sed -n 1p)
+
+clear   ;; 
+
+
+        3) 
+        
+ 	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+lambda=""
+
+exec 3>&1
+
+form1_01=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Magnetic effects" \
+--form "Dipolar coupling parameter" 25 60 16 \
+"Lambda or Psi_m:" 1 1 "$lambda" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+lambda=$(echo "$form1_01" | sed -n 1p)
+
+clear   ;; 
+esac
+
 # MENU 1.0 
 
   	HEIGHT=15
@@ -68,6 +113,28 @@ dialog --clear \
         choice1_06=$?
 clear 
 
+
+case $choice1_06 in
+        0) 
+        
+  	HEIGHT=15
+	WIDTH=40
+	CHOICE_HEIGHT=15
+continuefrom=""
+
+exec 3>&1
+
+form1_06=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Continue simulation menu" \
+--form "Continue simulation data" 25 60 16 \
+"Continue from iteraction:" 1 1 "$continuefrom" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+continuefrom=$(echo "$form1_06" | sed -n 1p)
+
+clear  ;;
+esac
 
 # MENU 1.07 
 
@@ -147,7 +214,7 @@ percentnonmagpart=$(echo "$form1_15" | sed -n 1p)
 clear   ;; 
 esac
 
-# MENU 1.2 
+# MENU 1.1 
 
 case $choice1 in
         1) 
@@ -257,6 +324,32 @@ choice2=$(dialog --clear \
                 "${OPTIONS[@]}" \
                 2>&1 >/dev/tty)
 clear
+
+
+case $choice2 in
+1) # MENU 2.1 
+
+HEIGHT=15
+WIDTH=40
+CHOICE_HEIGHT=15
+
+pecletnumber=""
+
+exec 3>&1
+
+form2_1=$(dialog --backtitle "SIMMSUS - Simulation of Magnetic Suspensions" --title "Brownian effects" \
+--form "\nPeclet number of the particles" 25 60 16 \
+"Pe:" 1 1 "$pecletnumber" 1 25 25 30 \
+2>&1 1>&3)
+
+exec 3>&-
+
+pecletnumber=$(echo "$form2_1" | sed -n 1p)
+
+
+clear;;
+esac 
+
 
 # MENU 3 
    
@@ -687,9 +780,19 @@ esac
         3) echo "Choice 1.2 - option" $choice1_2;; 
     esac
     
+       case $choice1 in
+        1) echo "Lambda =" $lambda;; 
+        3) echo "Lambda =" $lambda;; 
+    esac
+    
      case $choice1 in
         3) echo "% of non-mag particles" $percentnonmagpart;; 
     esac
+    
+        case $choice1_06 in
+        0) echo "Continue from iteraction" $continuefrom;; 
+    esac
+    
     
     case $choice1_1 in
         0) echo "Choice 1.3 - option" $choice1_3;; 
@@ -699,6 +802,10 @@ esac
         1) echo "Choice 2 - option 1";; 
         2) echo "Choice 2 - option 2";; 
     esac
+    
+        case $choice2 in
+        1) echo "Peclet number =" $pecletnumber;; 
+           esac
     
     case $choice3 in
         1) echo "Choice 3 - option 1";; 
