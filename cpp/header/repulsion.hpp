@@ -11,9 +11,9 @@
  *
  */
 
-#ifndef SRC_HEADERS_BROWNIAN_HPP_
-#define SRC_HEADERS_BROWNIAN_HPP_
+#ifndef SRC_HEADERS_REPULSION_HPP_
+#define SRC_HEADERS_REPULSION_HPP_
 
-void repulsion();
+void repulsion(double *beta);
 
-#endif /* SRC_HEADERS_BROWNIAN_HPP_ */
+#endif /* SRC_HEADERS_REPULSION_HPP_ */

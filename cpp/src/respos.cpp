@@ -11,14 +11,19 @@
  *
  */
 
-#ifndef SRC_HEADERS_CONSTANTS_HPP_
-#define SRC_HEADERS_CONSTANTS_HPP_
+// !*************************************************!
+// ! 		     SIMMSUS			  ! 
+// !SUBROUTINE: respos				  !					         
+// !Last update: 16/07/2023			  !
+// !*************************************************!
 
-#include <math.h>
-// Pre-calibrated numerical variables
-const int nb = 125; // number of phiscal cells for periodic interactions
-const int nbr = 27; // number of reciprocal cells for periodic interactions
-const double stokes = 1.0E-01; //! rotational Stokes number (Str)
-const int nGreen = 10000;
+// !*************************************************!
+// ! Subroutine resposible for calculating the parti-!
+// ! cles position.				  !
+// !*************************************************!
 
-#endif /* SRC_HEADERS_CONSTANTS_HPP_ */
+#include <header/respos.hpp>
+
+double respos(double a,double b,double c){
+    return a + b * c;
+}

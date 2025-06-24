@@ -15,11 +15,12 @@
 #include <math.h>
 #include <globals.hpp>
 
-void brownian(bool gravidade, bool shear, bool torque){
+void brownian(bool gravidade, bool shear, bool torque, double *beta, double Pe, double dt){
 int total = 3 * numParticles * numRealizations;
 
 double *nr = new double[total];
 randomic(-1.0,1.0,total,nr);
+double *diarand = new double[total];
 double nr1,nr2,nr3;
 int i,j;
 
@@ -34,10 +35,10 @@ if(gravidade || shear){
             nr1 /= modrand;
             nr2 /= modrand;
             nr3 /= modrand;        
-            double resPow = (pow(beta(j,i),(-2.0))) * (pow((6.0 / (Pe * dt)),0.5));
-            FORCAS(6,j,i,1)=  resPow * nr1;
-            FORCAS(6,j,i,2)=  resPow * nr2;
-            FORCAS(6,j,i,3)=  resPow  * nr3;
+            double resPow = (pow(beta[j * numParticles + i],(-2.0))) * (pow((6.0 / (Pe * dt)),0.5));
+            FORCAS60[j * numParticles + i] =  resPow * nr1;
+            FORCAS61[j * numParticles + i] =  resPow * nr2;
+            FORCAS62[j * numParticles + i] =  resPow  * nr3;
         }
     }
 }else{ 
@@ -51,10 +52,10 @@ if(gravidade || shear){
             nr1 /= modrand;
             nr2 /= modrand;
             nr3 /= modrand;        
-            double resPow = (pow(beta(j,i),(-2.0))) * (pow((6.0 / dt),0.5));
-            FORCAS(6,j,i,1) = resPow * nr1;
-            FORCAS(6,j,i,2) = resPow * nr2;
-            FORCAS(6,j,i,3) = resPow * nr3;
+            double resPow = (pow(beta[j * numParticles + i],(-2.0))) * (pow((6.0 / dt),0.5));
+            FORCAS60[j * numParticles + i] =  resPow * nr1;
+            FORCAS61[j * numParticles + i] =  resPow * nr2;
+            FORCAS62[j * numParticles + i] =  resPow  * nr3;
             }
         }
     }   
@@ -65,33 +66,33 @@ if(torque){
     if(gravidade || shear){
         for(j = 0; j < numRealizations; j++){
             for(i = 0; i < numParticles; i++){
-                nr1 = nr((i*2+(i-2)+(N*3*(j-1))));
-                nr2 = nr((i*2+(i-1)+(N*3*(j-1))));
-                nr3 = nr((i*2+(i)+(N*3*(j-1))));
+                nr1 = nr[(i * 2 + (i-2) + (numParticles * 3 * (j-1)))];
+                nr2 = nr[(i * 2 + (i-1) + (numParticles * 3 * (j-1)))];
+                nr3 = nr[(i * 2 + (i) + (numParticles * 3 * (j-1)))];                
                 double modrand = pow(pow(nr1,2.0) + pow(nr2,2.0) + pow(nr3,2.0),0.5);            
                 nr1 /= modrand;
                 nr2 /= modrand;
                 nr3 /= modrand;
-                double resPow = pow(beta(j,i),(-2.0)) * pow(9.0 / (2.0 * Pe * dt),0.5);            
-                TORQUES(3,j,i,1)= resPow * nr1;
-                TORQUES(3,j,i,2)= resPow * nr2;
-                TORQUES(3,j,i,3)= resPow * nr3;
+                double resPow = pow(beta[j * numParticles + i],(-2.0)) * pow(9.0 / (2.0 * Pe * dt),0.5);            
+                TORQUES30[j * numParticles + i] = resPow * nr1;
+                TORQUES31[j * numParticles + i] = resPow * nr2;
+                TORQUES32[j * numParticles + i] = resPow * nr3;
             }
         }
     }else{
         for(j = 0; j < numRealizations; j++){
             for(i = 0; i < numParticles; i++){
-                nr1 = nr((i*2+(i-2)+(N*3*(j-1))));
-                nr2 = nr((i*2+(i-1)+(N*3*(j-1))));
-                nr3 = nr((i*2+(i)+(N*3*(j-1))));
+                nr1 = nr[(i * 2 + (i-2) + (numParticles * 3 * (j-1)))];
+                nr2 = nr[(i * 2 + (i-1) + (numParticles * 3 * (j-1)))];
+                nr3 = nr[(i * 2 + (i) + (numParticles * 3 * (j-1)))];   
                 double modrand = pow(pow(nr1,2.0) + pow(nr2,2.0) + pow(nr3,2.0),0.5);            
                 nr1 /= modrand;
                 nr2 /= modrand;
                 nr3 /= modrand;
-                double resPow = pow(beta(j,i),(-2.0)) * pow(9.0 / (2.0 * dt),0.5);
-                TORQUES(3,j,i,1)= resPow * nr1;
-                TORQUES(3,j,i,2)= resPow * nr2;
-                TORQUES(3,j,i,3)= resPow * nr3;
+                double resPow = pow(beta[j * numParticles + i],(-2.0)) * pow(9.0 / (2.0 * dt),0.5);
+                TORQUES30[j * numParticles + i] = resPow * nr1;
+                TORQUES31[j * numParticles + i] = resPow * nr2;
+                TORQUES32[j * numParticles + i] = resPow * nr3;
             }
         }
     }

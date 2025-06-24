@@ -67,10 +67,8 @@ class Configuration {
         int numreal;
         
 
-        //INITIAL CONFIGURATION INFORMATION
-
-        //ORDERED (T) OR RANDOM (F) ARRANGEMENT
-        bool ordrandarr;
+        //INITIAL CONFIGURATION INFORMATION       
+        
         //MIX MAGNETIC AND NON MAGNETIC PARTICLES
         bool mixmagnonmagpart;
         //INITIAL SPHERICAL AGGREGATE
@@ -229,9 +227,6 @@ class Configuration {
         void setNumreal(int s_numreal);
         double getNumreal(){ return numreal;}
         
-        void setOrdrandarr(bool s_ordrandarr);
-        bool getOrdrandarr(){ return ordrandarr;}
-
         void setMixmagnonmagpart(bool s_mixmagnonmagpart);
         bool getMixmagnonmagpart(){ return mixmagnonmagpart;}       
         

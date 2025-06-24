@@ -72,7 +72,7 @@ auxper3[4] = 100;
 
 auxperi3[0] = 0;
 auxperi3[1] = 9;
-auxperi3[2] = 18;    
+auxperi3[2] = 18;
 
 for(a = 0; a < 5; a++){
     for(b = 0; b < 5; b++){
@@ -88,12 +88,16 @@ for(a = 0; a < 5; a++){
 }
 
 // // Creating the initial configuration of all the physical lattices
+//cout << nb * numRealizations * numParticles << "\n";
 for(a = 0; a < nb; a++){
     for(b = 0; b < numRealizations; b++){
         for(c = 0; c < numParticles; c++){            
             XI0[a * numRealizations * numParticles + (b * numParticles) + c] = X0[b * numParticles + c] + ILF0[a] * l;
             XI1[a * numRealizations * numParticles + (b * numParticles) + c] = X1[b * numParticles + c] + ILF1[a] * l;
-            XI2[a * numRealizations * numParticles + (b * numParticles) + c] = X2[b * numParticles + c] + ILF2[a] * h;            
+            XI2[a * numRealizations * numParticles + (b * numParticles) + c] = X2[b * numParticles + c] + ILF2[a] * l;            
+  //          cout << "Fe" << "\t" << XI0[a * numRealizations * numParticles + (b * numParticles) + c] << '\t'
+            // << XI1[a * numRealizations * numParticles + (b * numParticles) + c] << '\t'
+            // << XI2[a * numRealizations * numParticles + (b * numParticles) + c] << '\n';
         }
     }
 }

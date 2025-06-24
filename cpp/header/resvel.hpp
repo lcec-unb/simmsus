@@ -11,14 +11,9 @@
  *
  */
 
-#ifndef SRC_HEADERS_CONSTANTS_HPP_
-#define SRC_HEADERS_CONSTANTS_HPP_
+#ifndef SRC_HEADERS_RESVEL_HPP_
+#define SRC_HEADERS_RESVEL_HPP_
 
-#include <math.h>
-// Pre-calibrated numerical variables
-const int nb = 125; // number of phiscal cells for periodic interactions
-const int nbr = 27; // number of reciprocal cells for periodic interactions
-const double stokes = 1.0E-01; //! rotational Stokes number (Str)
-const int nGreen = 10000;
-
-#endif /* SRC_HEADERS_CONSTANTS_HPP_ */
+double resvel(double a, double b, double c, double d);
+ 
+#endif /* SRC_HEADERS_RESVEL_HPP_ */

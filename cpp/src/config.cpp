@@ -175,15 +175,7 @@ if (infile.is_open()){
 			if (recordName == "NUMREAL"){				
 				this->numreal = stoi(value);			
 				continue;
-			}
-			if (recordName == "ORDRANDARR"){
-				if(value == "TRUE"){
-					this->ordrandarr = true;
-				}else{
-					this->ordrandarr = false;
-				}
-				continue;
-			}
+			}			
 			if (recordName == "MIXMAGNONMAGPART"){
 				if(value == "TRUE"){
 					this->mixmagnonmagpart = true;
@@ -571,11 +563,6 @@ void Configuration::setOf(bool s_of)
 void Configuration::setOrdereddipoles(bool s_odereddipoles)
 {
 	ordereddipoles = s_odereddipoles;
-}
-
-void Configuration::setOrdrandarr(bool s_ordrandarr)
-{
-	ordrandarr = s_ordrandarr;
 }
 
 void Configuration::setOscillatoryfield(double s_oscillatoryfield)

@@ -10,15 +10,12 @@
  * or leandro.zanotto@gmail.com (Leandro Zanotto).
  *
  */
+#ifndef SRC_HEADERS_FIELDEXCITATIONS_HPP_
+#define SRC_HEADERS_FIELDEXCITATIONS_HPP_
 
-#ifndef SRC_HEADERS_CONSTANTS_HPP_
-#define SRC_HEADERS_CONSTANTS_HPP_
+void fieldExcitations();
 
-#include <math.h>
-// Pre-calibrated numerical variables
-const int nb = 125; // number of phiscal cells for periodic interactions
-const int nbr = 27; // number of reciprocal cells for periodic interactions
-const double stokes = 1.0E-01; //! rotational Stokes number (Str)
-const int nGreen = 10000;
 
-#endif /* SRC_HEADERS_CONSTANTS_HPP_ */
+#endif /* SRC_HEADERS_FIELDEXCITATIONS_HPP_ */
+ 
+

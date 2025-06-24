@@ -30,7 +30,7 @@
 #include <math.h>
 using namespace std;
 
-void initialCondition(bool initialSphericalAggregate, bool ordenado){
+void initialCondition(bool initialSphericalAggregate){
 
 //Calculating the aggregate's radius   
 double ragreg = pow((numParticles / phi),(1.0/3.0));
@@ -87,45 +87,6 @@ if(initialSphericalAggregate) {
             X2[j * numParticles + i] = zcentro +(zmax - zmin) * 0.5 * nr[nr2Index[j * numParticles + i]];
         }
     }
-} else {
-
-    // If you want to create an ordered distribution {...
-
-    if(ordenado) {
-
-    int powNumPart = pow(numParticles,(1.0/3.0));
-    double x012 = (2.0 * pow(numParticles,(1.0/3.0)));
-    double x0120 = pow(numParticles,1.0/3.0) / (pow(numParticles,(1.0/3.0))-1.0);
-    for(int j = 0; j < numRealizations; j++){
-        int loop = 0;
-        int loop2 = 0;
-            for(int i = 0; i < numParticles; i++){ 
-                double reale = (i - 1.0) / powNumPart;
-                int inteiro = (i - 1) / powNumPart;
-                double reale2 = (loop + 1.0) / powNumPart;
-                int inteiro2 = (loop + 1) / powNumPart;
-
-                if(reale != 0.0){
-                    if(reale==inteiro) {
-                        loop++;
-                    }
-                } 
-                if(reale2 != 1.0){
-                    if(reale2==inteiro2) {
-                        loop2++;
-                    }
-                }
-
-                int auxiliar1 = i / pow(numParticles,(2.0/3.0)); 
-
-                int a = i - loop * pow(numParticles,(1.0/3.0));
-                int b = 1 + loop - auxiliar1 * pow(numParticles,(1.0/3.0));
-                int c = i / pow(numParticles,(2.0/3.0));            
-                X0[j * numParticles + i] = l / x012 + a * (l-(l / x0120));
-                X1[j * numParticles + i] = l / x012 + b * (l-(l / x0120));
-                X2[j * numParticles + i] = h / x012 + c * (h-(h / x0120));
-            }
-        }
 }else{
 
     // If you want to generate a random initial distribution, { you must call the random number generation routine...
@@ -231,6 +192,5 @@ if(initialSphericalAggregate) {
                 } 
 }
     }
-}
 }
 }
