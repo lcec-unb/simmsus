@@ -37,6 +37,7 @@ if (argc < 2){
 //Read the Input File and Create the Object
 
 Configuration configuration(argv[1]);
+
 numParticles = configuration.getNumpart();
 numRealizations = configuration.getNumreal();
 
@@ -171,7 +172,7 @@ if(configuration.getMp()){
 
 initialCondition(configuration.getInitialspheraggr());
 
-double qsi = pow(M_PI,0.5)  / (pow(l * l * h,(1.0/3.0)));
+qsi = pow(M_PI,0.5)  / (pow(l * l * h,(1.0/3.0)));
 
 // Building a table with all the Green-functions
 // And building the periodic structure to compute

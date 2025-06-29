@@ -111,11 +111,11 @@ for(j = 0; j < numRealizations; j++){
             }       
         }      
     }
-    sumAux = reduce(aux0[j * numParticles], aux0[j * numParticles + (numParticles -1)], 0);  
+    sumAux = reduce(aux0[0], aux0[numRealizations * numParticles], aux0[0]);  
     FORCAS40[j * numParticles + i] = sumAux;
-    sumAux = reduce(aux1[j * numParticles], aux1[j * numParticles + (numParticles -1)], 0);  
+    sumAux = reduce(aux1[0], aux1[numRealizations * numParticles], aux1[0]);
     FORCAS41[j * numParticles + i] = sumAux;
-    sumAux = reduce(aux2[j * numParticles], aux2[j * numParticles + (numParticles -1)], 0);  
+    sumAux = reduce(aux2[0], aux2[numRealizations * numParticles], aux2[0]);
     FORCAS42[j * numParticles + i] = sumAux;
     aux0[j * numParticles + i] = 0.0;
     aux1[j * numParticles + i] = 0.0;
