@@ -1,0 +1,8 @@
+.vscode/settings.json
+.vscode/tasks.json
+subroutines.mod
+variables.mod
+*.o
+*.out
+*.vscode
+images/
