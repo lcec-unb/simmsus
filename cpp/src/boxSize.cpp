@@ -10,25 +10,22 @@
  * or leandro.zanotto@gmail.com (Leandro Zanotto).
  *
  */
-
-
-/***********************
-* 		 SIMMSUS
-*SUBROUTINE: boxSize
-*
-************************/
 #include <math.h>
 #include <header/globals.hpp>
 #include <header/boxSize.hpp>
 
-void boxSize(int N, double phi, int razao, bool initialAgregate){
+void boxSize(int N, double phi, int razao, bool initialAgregate)
+{
 
-    if(initialAgregate){
-        double ragreg = pow((N / phi),(1.0 / 3.0));
+    if (initialAgregate)
+    {
+        double ragreg = pow((N / phi), (1.0 / 3.0));
         l = 100.0 * ragreg;
         h = l;
-    } else{
-        l = pow(( N / (razao * phi)) * ((4.0 * M_PI) / (3.0)),(1.0 / 3.0));       
+    }
+    else
+    {
+        l = pow((N / (razao * phi)) * ((4.0 * M_PI) / (3.0)), (1.0 / 3.0));
         h = razao * l;
     }
 }
