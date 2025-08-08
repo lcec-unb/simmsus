@@ -11,53 +11,28 @@
  *
  */
 
-// *************************************************!
-//  		     SIMMSUS			  ! 
-// SUBROUTINE: periodic_interactions		  !					         
-// Last update: 16/07/2023			  !
-// *************************************************!
-
-// *************************************************!
-//  Suroutine responsible for computing properly all!
-//  periodic interactions. 			  !
-// 						  !
-//  This subroutine is called whenever the program  !
-//  identifies the presence of any periodic interac-!
-//  tion. These periodic interactions can be of the !
-//  following kinds:				  !
-// 						  !
-//  1 - Long range hydrodynamic interactions	  !
-//  2 - Long range periodic magnetic torques        !
-//  3 - Long range periodic magnetic forces  	  !
-// 						  !
-//  This is probably the most expensive and complex !
-//  subroutine in this code.			  !
-// *************************************************!
 #include <iostream>
 #include <numeric>
 #include <globals.hpp>
 #include <math.h>
- #include <cstring>
+#include <cstring>
+#include <header/periodicInteractions.hpp>
 using namespace std;
+
 //Transformar o objeto de configuração em global
 
-void periodicInteractions(double dt, double shearrate, double alpha2, double lambda, bool shear, bool ligaih, bool tmagper, bool fmagper, bool gravidade, double brownianmpecletnum){
-// We start by computing first the sums in the real space 
-// Here, nb denotes the number of physical boxes. This
-// number can be different from nbr, which denotes the
-// nubmer of reciprocal boxes. In simconfig.dat we 
-// recommend the user to set nb=125 and nbr=27. These
-// values ensure a good precision when computing the 
-// average sedimentation velocity of a suspension of
-// spheres in CreeM_PIng-flow
+void periodicInteractions(){
 
-// This loop works like this: we fix a realization and
-// a given particle and the make a sweep computing the
-// long-range interactions between this particles and
-// all the other particles in the surrounding boxes.
-// We {, extend this procedure to all real particles
-// in all the simultaneous numerical experiments.
-
+double dt = configuration->getNumtimestep();
+double shearrate = configuration->getDynincrshrate();
+double alpha2 = configuration->getAlpha();
+double lambda = configuration->getLambda();
+double brownianmpecletnum = configuration->getBrownianpecletnum();
+bool shear = configuration->getTurnonshrate();
+bool ligaih = configuration->getAccounthi();
+bool tmagper = configuration->getPmt();
+bool fmagper = configuration->getPmf();
+bool gravidade = configuration->getSedimentation();
 int q,i,s,j,d;
 double rij[3], konda[3], knormal[3], rn[3], auxf[3][3], auxt[3][3];
 double modrij, kr, kr2, modk;
@@ -85,8 +60,6 @@ double *FREC2 = new double[numRecBoxes];
 double *TREC0 = new double[numRecBoxes];
 double *TREC1 = new double[numRecBoxes];
 double *TREC2 = new double[numRecBoxes];
-
-
 
 for (q == 0; q < numRealizations; q++){
     for (i == 0; i < numParticles; i++){
@@ -581,8 +554,7 @@ for (q == 0; q < numRealizations; q++){
 
                 if (tmagper)
                 {
-                    // Computing the magnetic torques acting on the particles, now with the reciprocal space sum contribution
-                    // reduce(aux0[j * numParticles], aux0[j * numParticles + (numParticles -1)], 0);
+                    // Computing the magnetic torques acting on the particles, now with the reciprocal space sum contribution                    
                     TORQUES10[q * numParticles + i] += reduce(TREC0[0], TREC0[numRecBoxes], TREC0[0]);
                     TORQUES11[q * numParticles + i] += reduce(TREC1[0], TREC1[numRecBoxes], TREC1[0]);
                     TORQUES12[q * numParticles + i] += reduce(TREC2[0], TREC2[numRecBoxes], TREC2[0]);
