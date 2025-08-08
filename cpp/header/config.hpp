@@ -136,7 +136,7 @@ class Configuration {
         // PHYSICAL PARAMETERS
 
         //LAMBDA
-        double lambda;
+        double alpha2;
         //ALPHA
         double alpha;
         //BROWNIAN PECLET NUMBER
@@ -308,8 +308,8 @@ class Configuration {
         void setFrequencyoscillsh(double s_frequencyoscillsh);
         double getFrequencyoscillsh(){ return frequencyoscillsh;}
 
-        void setLambda(double lambda);
-        double getLambda(){ return lambda;}
+        void setAlpha2(double alpha2);
+        double getAlpha2(){ return alpha2;}
 
         void setAlpha(double s_alpha);
         double getAlpha(){ return alpha;}

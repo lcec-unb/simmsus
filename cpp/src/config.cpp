@@ -14,386 +14,539 @@
 /**CPP File - Create the Configuration Object With the values from config.yaml input file */
 // The methods are in alphabetical order
 
-#include <header/config.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <header/config.hpp>
 
 using namespace std;
-Configuration::Configuration(){ }
+Configuration::Configuration() {}
 
-Configuration::~Configuration(){ }
+Configuration::~Configuration() {}
 
-Configuration::Configuration(char *configFile){
+Configuration::Configuration(char *configFile)
+{
 
-ifstream infile;
-std::string string, recordName, value;
+	ifstream infile;
+	std::string string, recordName, value;
 
-infile.open (configFile);
+	infile.open(configFile);
 
-if (infile.is_open()){
-	while(getline(infile,string)) // To get you all the lines.
+	if (infile.is_open())
 	{
-		istringstream sstream(string);
-		sstream >> recordName >> value;
-		char charStart = recordName.at(0);
-		if (charStart != ' ' || charStart != '#') {
-			if (recordName == "STE"){
-				if(value == "TRUE"){
-					this->ste = true;
-				}else{
-					this->ste = false;
+		while (getline(infile, string)) // To get you all the lines.
+		{
+			istringstream sstream(string);
+			sstream >> recordName >> value;
+			char charStart = recordName.at(0);
+			if (charStart != ' ' || charStart != '#')
+			{
+				if (recordName == "STE")
+				{
+					if (value == "TRUE")
+					{
+						this->ste = true;
+					}
+					else
+					{
+						this->ste = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "MP"){
-				if(value == "TRUE"){
-					this->mp = true;
-				}else{
-					this->mp = false;
+				if (recordName == "MP")
+				{
+					if (value == "TRUE")
+					{
+						this->mp = true;
+					}
+					else
+					{
+						this->mp = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "SDS"){
-				if(value == "TRUE"){
-					this->sds = true;
-				}else{
-					this->sds = false;
+				if (recordName == "SDS")
+				{
+					if (value == "TRUE")
+					{
+						this->sds = true;
+					}
+					else
+					{
+						this->sds = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "SEDIMENTATION"){
-				if(value == "TRUE"){
-					this->sedimentation = true;
-				}else{
-					this->sedimentation = false;
+				if (recordName == "SEDIMENTATION")
+				{
+					if (value == "TRUE")
+					{
+						this->sedimentation = true;
+					}
+					else
+					{
+						this->sedimentation = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "FLUCMODE"){
-				if(value == "TRUE"){
-					this->flucmode = true;
-				}else{
-					this->flucmode = false;
+				if (recordName == "FLUCMODE")
+				{
+					if (value == "TRUE")
+					{
+						this->flucmode = true;
+					}
+					else
+					{
+						this->flucmode = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "BM"){
-				if(value == "TRUE"){
-					this->bm = true;
-				}else{
-					this->bm = false;
+				if (recordName == "BM")
+				{
+					if (value == "TRUE")
+					{
+						this->bm = true;
+					}
+					else
+					{
+						this->bm = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "ACCOUNTHI"){
-				if(value == "TRUE"){
-					this->accounthi = true;
-				}else{
-					this->accounthi = false;
+				if (recordName == "ACCOUNTHI")
+				{
+					if (value == "TRUE")
+					{
+						this->accounthi = true;
+					}
+					else
+					{
+						this->accounthi = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "CONTINUEOSIM"){
-				if(value == "TRUE"){
-					this->continueosim = true;
-				}else{
-					this->continueosim = false;
+				if (recordName == "CONTINUEOSIM")
+				{
+					if (value == "TRUE")
+					{
+						this->continueosim = true;
+					}
+					else
+					{
+						this->continueosim = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "PI"){
-				if(value == "TRUE"){
-					this->pi = true;
-				}else{
-					this->pi = false;
+				if (recordName == "PI")
+				{
+					if (value == "TRUE")
+					{
+						this->pi = true;
+					}
+					else
+					{
+						this->pi = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "PMT"){
-				if(value == "TRUE"){
-					this->pmt = true;
-				}else{
-					this->pmt = false;
+				if (recordName == "PMT")
+				{
+					if (value == "TRUE")
+					{
+						this->pmt = true;
+					}
+					else
+					{
+						this->pmt = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "PMF"){
-				if(value == "TRUE"){
-					this->pmf = true;
-				}else{
-					this->pmf = false;
+				if (recordName == "PMF")
+				{
+					if (value == "TRUE")
+					{
+						this->pmf = true;
+					}
+					else
+					{
+						this->pmf = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "RECORDPOSFILE"){
-				if(value == "TRUE"){
-					this->recordposfile = true;
-				}else{
-					this->recordposfile = false;
+				if (recordName == "RECORDPOSFILE")
+				{
+					if (value == "TRUE")
+					{
+						this->recordposfile = true;
+					}
+					else
+					{
+						this->recordposfile = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "RECORDVELFILE"){
-				if(value == "TRUE"){
-					this->recordvelfile = true;
-				}else{
-					this->recordvelfile = false;
+				if (recordName == "RECORDVELFILE")
+				{
+					if (value == "TRUE")
+					{
+						this->recordvelfile = true;
+					}
+					else
+					{
+						this->recordvelfile = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "RECORDDIPFILE"){
-				if(value == "TRUE"){
-					this->recorddipfile = true;
-				}else{
-					this->recorddipfile = false;
+				if (recordName == "RECORDDIPFILE")
+				{
+					if (value == "TRUE")
+					{
+						this->recorddipfile = true;
+					}
+					else
+					{
+						this->recorddipfile = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "OF"){
-				if(value == "TRUE"){
-					this->of = true;
-				}else{
-					this->of = false;
+				if (recordName == "OF")
+				{
+					if (value == "TRUE")
+					{
+						this->of = true;
+					}
+					else
+					{
+						this->of = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "TF"){
-				if(value == "TRUE"){
-					this->tf = true;
-				}else{
-					this->tf = false;
+				if (recordName == "TF")
+				{
+					if (value == "TRUE")
+					{
+						this->tf = true;
+					}
+					else
+					{
+						this->tf = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "NUMPART"){				
-				this->numpart = stoi(value);			
-				continue;
-			}
-			if (recordName == "NUMREAL"){				
-				this->numreal = stoi(value);			
-				continue;
-			}			
-			if (recordName == "MIXMAGNONMAGPART"){
-				if(value == "TRUE"){
-					this->mixmagnonmagpart = true;
-				}else{
-					this->mixmagnonmagpart = false;
+				if (recordName == "NUMPART")
+				{
+					this->numpart = stoi(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "INITIALSPHERAGGR"){
-				if(value == "TRUE"){
-					this->initialspheraggr = true;
-				}else{
-					this->initialspheraggr = false;
+				if (recordName == "NUMREAL")
+				{
+					this->numreal = stoi(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "ORDEREDDIPOLES"){
-				if(value == "TRUE"){
-					this->ordereddipoles = true;
-				}else{
-					this->ordereddipoles = false;
+				if (recordName == "MIXMAGNONMAGPART")
+				{
+					if (value == "TRUE")
+					{
+						this->mixmagnonmagpart = true;
+					}
+					else
+					{
+						this->mixmagnonmagpart = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "MONOPOLIDISP"){
-				if(value == "TRUE"){
-					this->monopolidisp = true;
-				}else{
-					this->monopolidisp = false;
+				if (recordName == "INITIALSPHERAGGR")
+				{
+					if (value == "TRUE")
+					{
+						this->initialspheraggr = true;
+					}
+					else
+					{
+						this->initialspheraggr = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "VOLUMEFRACPART"){				
-				this->volumefracpart = stod(value);			
-				continue;
-			}
-			if (recordName == "BOXASPECTRATIO"){				
-				this->boxaspectratio = stod(value);			
-				continue;
-			}
-			if (recordName == "PERCENTNONMAGPART"){				
-				this->percentnonmagpart = stod(value);			
-				continue;
-			}
-			if (recordName == "APPLYEXTMAGFIELD"){
-				if(value == "TRUE"){
-					this->applyextmagfield = true;
-				}else{
-					this->applyextmagfield = false;
+				if (recordName == "ORDEREDDIPOLES")
+				{
+					if (value == "TRUE")
+					{
+						this->ordereddipoles = true;
+					}
+					else
+					{
+						this->ordereddipoles = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "POSEXTFIELD"){				
-				this->posextfield = stod(value);			
-				continue;
-			}
-			if (recordName == "OSCILLATORYFIELD"){
-				if(value == "TRUE"){
-					this->oscillatoryfield = true;
-				}else{
-					this->oscillatoryfield = false;
+				if (recordName == "MONOPOLIDISP")
+				{
+					if (value == "TRUE")
+					{
+						this->monopolidisp = true;
+					}
+					else
+					{
+						this->monopolidisp = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "ROTATINGFIELD"){
-				if(value == "TRUE"){
-					this->rotatingfield = true;
-				}else{
-					this->rotatingfield = false;
+				if (recordName == "VOLUMEFRACPART")
+				{
+					this->volumefracpart = stod(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "NONLINEARDUFFFIELDEXCI"){
-				if(value == "TRUE"){
-					this->nonlineardufffieldexci = true;
-				}else{
-					this->nonlineardufffieldexci = false;
+				if (recordName == "BOXASPECTRATIO")
+				{
+					this->boxaspectratio = stod(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "DOUBLEFREQFIELDEXCI"){
-				if(value == "TRUE"){
-					this->doublefreqfieldexci = true;
-				}else{
-					this->doublefreqfieldexci = false;
+				if (recordName == "PERCENTNONMAGPART")
+				{
+					this->percentnonmagpart = stod(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "DYNAMICINCRFF"){
-				if(value == "TRUE"){
-					this->dynamicincrff = true;
-				}else{
-					this->dynamicincrff = false;
+				if (recordName == "APPLYEXTMAGFIELD")
+				{
+					if (value == "TRUE")
+					{
+						this->applyextmagfield = true;
+					}
+					else
+					{
+						this->applyextmagfield = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "FREQUENCY1MAGFIELD"){				
-				this->frequency1magfield = stod(value);			
-				continue;
-			}
-			if (recordName == "FREQUENCY2AGFIELD"){				
-				this->frequency2magfield = stod(value);			
-				continue;
-			}
-			if (recordName == "C1PARDUFFEXC"){				
-				this->c1parduffexc = stod(value);			
-				continue;
-			}
-			if (recordName == "C2PARDUFFEXC"){				
-				this->c2parduffexc = stod(value);			
-				continue;
-			}
-			if (recordName == "C3PARDUFFEXC"){				
-				this->c3parduffexc = stod(value);			
-				continue;
-			}
-			if (recordName == "C4PARDUFFEXC"){				
-				this->c4parduffexc = stod(value);			
-				continue;
-			}
-			if (recordName == "MAXFREQDYNINCR"){				
-				this->maxfreqdynincr = stod(value);			
-				continue;
-			}
-			if (recordName == "NUMBERINTDYNINCR"){				
-				this->numberintdynincr = stoi(value);			
-				continue;
-			}
-			if (recordName == "TURNONSHRATE"){
-				if(value == "TRUE"){
-					this->turnonshrate = true;
-				}else{
-					this->turnonshrate = false;
+				if (recordName == "POSEXTFIELD")
+				{
+					this->posextfield = stod(value);
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "OSCILLATORYSH"){
-				if(value == "TRUE"){
-					this->oscillatorysh = true;
-				}else{
-					this->oscillatorysh = false;
+				if (recordName == "OSCILLATORYFIELD")
+				{
+					if (value == "TRUE")
+					{
+						this->oscillatoryfield = true;
+					}
+					else
+					{
+						this->oscillatoryfield = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "DYNINCRSHRATE"){
-				if(value == "TRUE"){
-					this->dynincrshrate = true;
-				}else{
-					this->dynincrshrate = false;
+				if (recordName == "ROTATINGFIELD")
+				{
+					if (value == "TRUE")
+					{
+						this->rotatingfield = true;
+					}
+					else
+					{
+						this->rotatingfield = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "DIMENSIONLESSSHRATE"){				
-				this->dimensionlessshrate = stod(value);			
-				continue;
-			}
-			if (recordName == "FREQUENCYOSCILLSH"){				
-				this->frequencyoscillsh = stod(value);			
-				continue;
-			}
-			if (recordName == "LAMBDA"){				
-				this->lambda = stod(value);			
-				continue;
-			}
-			if (recordName == "ALPHA"){				
-				this->alpha = stod(value);			
-				continue;
-			}
-			if (recordName == "BROWNIANPECLETNUM"){				
-				this->brownianpecletnum = stod(value);			
-				continue;
-			}
-			if (recordName == "TRANSLATIONALSTOKESNUM"){				
-				this->translationalstokesnum = stod(value);			
-				continue;
-			}
-			if (recordName == "SIMULATIONTIME"){				
-				this->simulationtime = stod(value);			
-				continue;
-			}
-			if (recordName == "STEPSTORINGRESULTS"){				
-				this->stepstoringresults = stoi(value);			
-				continue;
-			}
-			if (recordName == "CONTINUEFITNUM"){				
-				this->continuefitnum = stoi(value);			
-				continue;
-			}
-			if (recordName == "STATANALYSIS"){
-				if(value == "TRUE"){
-					this->statanalysis = true;
-				}else{
-					this->statanalysis = false;
+				if (recordName == "NONLINEARDUFFFIELDEXCI")
+				{
+					if (value == "TRUE")
+					{
+						this->nonlineardufffieldexci = true;
+					}
+					else
+					{
+						this->nonlineardufffieldexci = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "CALCSTRUCTFACTOR"){
-				if(value == "TRUE"){
-					this->calcstructfactor = true;
-				}else{
-					this->calcstructfactor = false;
+				if (recordName == "DOUBLEFREQFIELDEXCI")
+				{
+					if (value == "TRUE")
+					{
+						this->doublefreqfieldexci = true;
+					}
+					else
+					{
+						this->doublefreqfieldexci = false;
+					}
+					continue;
 				}
-				continue;
-			}
-			if (recordName == "PRINTLOCALMAPSPHI"){
-				if(value == "TRUE"){
-					this->printlocalmapsphi = true;
-				}else{
-					this->printlocalmapsphi = false;
+				if (recordName == "DYNAMICINCRFF")
+				{
+					if (value == "TRUE")
+					{
+						this->dynamicincrff = true;
+					}
+					else
+					{
+						this->dynamicincrff = false;
+					}
+					continue;
 				}
-				continue;
+				if (recordName == "FREQUENCY1MAGFIELD")
+				{
+					this->frequency1magfield = stod(value);
+					continue;
+				}
+				if (recordName == "FREQUENCY2AGFIELD")
+				{
+					this->frequency2magfield = stod(value);
+					continue;
+				}
+				if (recordName == "C1PARDUFFEXC")
+				{
+					this->c1parduffexc = stod(value);
+					continue;
+				}
+				if (recordName == "C2PARDUFFEXC")
+				{
+					this->c2parduffexc = stod(value);
+					continue;
+				}
+				if (recordName == "C3PARDUFFEXC")
+				{
+					this->c3parduffexc = stod(value);
+					continue;
+				}
+				if (recordName == "C4PARDUFFEXC")
+				{
+					this->c4parduffexc = stod(value);
+					continue;
+				}
+				if (recordName == "MAXFREQDYNINCR")
+				{
+					this->maxfreqdynincr = stod(value);
+					continue;
+				}
+				if (recordName == "NUMBERINTDYNINCR")
+				{
+					this->numberintdynincr = stoi(value);
+					continue;
+				}
+				if (recordName == "TURNONSHRATE")
+				{
+					if (value == "TRUE")
+					{
+						this->turnonshrate = true;
+					}
+					else
+					{
+						this->turnonshrate = false;
+					}
+					continue;
+				}
+				if (recordName == "OSCILLATORYSH")
+				{
+					if (value == "TRUE")
+					{
+						this->oscillatorysh = true;
+					}
+					else
+					{
+						this->oscillatorysh = false;
+					}
+					continue;
+				}
+				if (recordName == "DYNINCRSHRATE")
+				{
+					if (value == "TRUE")
+					{
+						this->dynincrshrate = true;
+					}
+					else
+					{
+						this->dynincrshrate = false;
+					}
+					continue;
+				}
+				if (recordName == "DIMENSIONLESSSHRATE")
+				{
+					this->dimensionlessshrate = stod(value);
+					continue;
+				}
+				if (recordName == "FREQUENCYOSCILLSH")
+				{
+					this->frequencyoscillsh = stod(value);
+					continue;
+				}
+				if (recordName == "ALPHA2")
+				{
+					this->alpha2 = stod(value);
+					continue;
+				}
+				if (recordName == "ALPHA")
+				{
+					this->alpha = stod(value);
+					continue;
+				}
+				if (recordName == "BROWNIANPECLETNUM")
+				{
+					this->brownianpecletnum = stod(value);
+					continue;
+				}
+				if (recordName == "TRANSLATIONALSTOKESNUM")
+				{
+					this->translationalstokesnum = stod(value);
+					continue;
+				}
+				if (recordName == "SIMULATIONTIME")
+				{
+					this->simulationtime = stod(value);
+					continue;
+				}
+				if (recordName == "STEPSTORINGRESULTS")
+				{
+					this->stepstoringresults = stoi(value);
+					continue;
+				}
+				if (recordName == "CONTINUEFITNUM")
+				{
+					this->continuefitnum = stoi(value);
+					continue;
+				}
+				if (recordName == "STATANALYSIS")
+				{
+					if (value == "TRUE")
+					{
+						this->statanalysis = true;
+					}
+					else
+					{
+						this->statanalysis = false;
+					}
+					continue;
+				}
+				if (recordName == "CALCSTRUCTFACTOR")
+				{
+					if (value == "TRUE")
+					{
+						this->calcstructfactor = true;
+					}
+					else
+					{
+						this->calcstructfactor = false;
+					}
+					continue;
+				}
+				if (recordName == "PRINTLOCALMAPSPHI")
+				{
+					if (value == "TRUE")
+					{
+						this->printlocalmapsphi = true;
+					}
+					else
+					{
+						this->printlocalmapsphi = false;
+					}
+					continue;
+				}
 			}
-		}		
-	}	
-	infile.close();
+		}
+		infile.close();
+	}
 }
-}
-
 
 void Configuration::setAccounthi(bool s_accounthi)
 {
