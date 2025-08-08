@@ -1,6 +1,18 @@
+
+
 # What is simmsus?
 
 **SIMMSUS** is a research code, initially written in **FORTRAN** that simulates the motion of a system of interacting particles. These particles can be simulated in different scenarios and may interact through different physical mechanisms. The code was initially developed for studying the physics of magnetic spherical particles in suspensions in order to better understand the properties of magnetic fluids (ferrofluids).
+
+The project is currently evolving along two main fronts:
+
+    Enhancement of the FORTRAN version, focusing on improving user interaction through Bash scripts with dialog for menu creation and parameter collection.
+
+    Development of a new C++ version, available in the CPP branch.
+
+⚠ Important: the CPP branch is under active development and not ready for use. We recommend using only the main FORTRAN version until the new implementation is stable.
+
+
 
 ## History of the project
 
