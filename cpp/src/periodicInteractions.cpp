@@ -25,8 +25,7 @@ void periodicInteractions(){
 
 double dt = configuration->getNumtimestep();
 double shearrate = configuration->getDynincrshrate();
-double alpha2 = configuration->getAlpha();
-double lambda = configuration->getLambda();
+double alpha2 = configuration->getAlpha2();
 double brownianmpecletnum = configuration->getBrownianpecletnum();
 bool shear = configuration->getTurnonshrate();
 bool ligaih = configuration->getAccounthi();
@@ -35,7 +34,7 @@ bool fmagper = configuration->getPmf();
 bool gravidade = configuration->getSedimentation();
 int q,i,s,j,d;
 double rij[3], konda[3], knormal[3], rn[3], auxf[3][3], auxt[3][3];
-double modrij, kr, kr2, modk;
+double modrij, kr, kr2, modk, lambda;
 double diferenca_interpol1;
 double mobilidade_self[3][3];
 double mobs0, mobs1, mobs2;
