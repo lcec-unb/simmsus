@@ -658,9 +658,9 @@ void Configuration::setInitialspheraggr(bool s_initialspheraggr)
 	initialspheraggr = s_initialspheraggr;
 }
 
-void Configuration::setLambda(double s_lambda)
+void Configuration::setAlpha2(double s_alpha2)
 {
-	lambda = s_lambda;
+	alpha2 = s_alpha2;
 }
 
 void Configuration::setMaxfreqdynincr(double s_maxfreqdynincr)
