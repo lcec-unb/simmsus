@@ -1,15 +1,17 @@
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![DOI](https://img.shields.io/badge/DOI-10.1016/j.powtec.2023.118720-blue)
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Platform](https://img.shields.io/badge/platform-Linux-orange)
+![Fortran](https://img.shields.io/badge/Fortran-734F96?style=for-the-badge&logo=fortran&logoColor=white)
+![Make](https://img.shields.io/badge/Make-4479A1?style=for-the-badge&logo=cmake&logoColor=white)
+![Shell Script](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Platform](https://img.shields.io/badge/platform-Linux-orange) 
 
 
 ## Table of Contents
 
-- [What is simmsus?](#what-is-simmsus)
+- [📌 Overview](#overview)
   - [History of the project](#history-of-the-project)
-- [General structure of the source-code](#general-structure-of-the-source-code)
+- [📂 Structure of the source-code](#structure-of-the-source-code)
   - [simmsus.f90](#simmsusf90)
   - [input.f90](#inputf90)
   - [main.f90](#mainf90)
@@ -17,18 +19,19 @@
   - [statistics.f90](#statisticsf90)
   - [variables.f90](#variablesf90)
   - [makefile](#makefile)
-- [Physics and numerics](#physics-and-numerics)
+- [📐 Physics and numerics](#physics-and-numerics)
   - [Periodic calculations](#periodic-calculations)
   - [Brownian motion and random numbers](#brownian-motion-and-random-numbers)
   - [Calculation of forces and torques](#calculation-of-forces-and-torques)
   - [Translational and rotational particle inertia](#translational-and-rotational-particle-inertia)
   - [Initial condition](#initial-condition)
   - [Field excitations](#field-excitations)
-- [Code validation](#code-validation)
-- [Gallery](#gallery)
-- [References](#references)
+- [🧪 Code validation](#code-validation)
+- [🖼️Gallery](#gallery)
+- [📚References](#references)
 
-# What is simmsus?
+
+# Overview
 
 **SIMMSUS** is a research code, initially written in **FORTRAN** that simulates the motion of a system of interacting particles. These particles can be simulated in different scenarios and may interact through different physical mechanisms. The code was initially developed for studying the physics of magnetic spherical particles in suspensions in order to better understand the properties of magnetic fluids (ferrofluids).
 
@@ -40,8 +43,6 @@ The project is currently evolving along two main fronts:
 
 ⚠ Important: the CPP branch is under active development and not ready for use. We recommend using only the main FORTRAN version until the new implementation is stable.
 
-
-
 ## History of the project
 
 The code was initially developed for studying the physics of magnetic spherical particles in suspensions in order to better understand the properties of magnetic fluids (ferrofluids). Since the beggining of the development, the code was designed to consider the effects of Brownian motion, long range dipole-dipole and hydrodynamic interactions. The first physics simulated through **SIMMSUS** was the study of the alignment of the particles in the direction of an applied steady-state magnetic field to see wether the code was capable of capturing the behavior of the equilibrium magnetization predicted by theoretical asymptotic models available on the literature [1].
@@ -52,7 +53,7 @@ In its present version **SIMMSUS** is capable of simulating Brownian and non-Bro
 
 Regarding the application of time-dependent magnetic fields, we have conducted a rigorous study on the dynamical susceptibility response of ferrofluids using **SIMMSUS** and have validated the dynamical solution of the rotational motion of the dipole moments of the particles provided by the code by comparing the numerical solution with an asymptotic theoretical model [11]. The code seems to predict with excellent precision the dynamical behavior of the internal structure of ferrofluids.
 
-# General structure of the source-code
+# Structure of the source-code
 
 The code contains 8 files, from which 7 are necessary to produce the executable file (program) after the compilation and 1 is a configuration file.
 These are the following files:
@@ -506,32 +507,28 @@ recommend the reader to consult the references displayed in this README file.
 
 # References
 
-[1] Ivanov, Alexey O., and Olga B. Kuznetsova. "Magnetic properties of dense ferrofluids: an influence of interparticle correlations." Physical Review E 64.4 (2001): 041405.[DOI:10.1103/PhysRevE.64.041405](https://doi.org/10.1103/PhysRevE.64.041405) 
+[1] Ivanov, Alexey O., and Olga B. Kuznetsova. "Magnetic properties of dense ferrofluids: an influence of interparticle correlations." *Physical Review E* 64.4 (2001): 041405. [![DOI](https://img.shields.io/badge/DOI-10.1103/PhysRevE.64.041405-blue)](https://doi.org/10.1103/PhysRevE.64.041405)  
 
-[2] Gontijo, R. G., and F. R. Cunha. "Numerical simulations of magnetic suspensions with hydrodynamic and dipole-dipole magnetic interactions." Physics of fluids 29.6 (2017). [DOI:10.1063/1.4986083](https://doi.org/10.1063/1.4986083).
+[2] Gontijo, R. G., and F. R. Cunha. "Numerical simulations of magnetic suspensions with hydrodynamic and dipole-dipole magnetic interactions." *Physics of Fluids* 29.6 (2017). [![DOI](https://img.shields.io/badge/DOI-10.1063/1.4986083-blue)](https://doi.org/10.1063/1.4986083)  
 
-[3] Guimarães, A. B., F. R. Cunha, and R. G. Gontijo. "The influence of hydrodynamic effects on the complex susceptibility response of magnetic fluids undergoing oscillatory fields: New insights for magnetic hyperthermia." Physics of Fluids 32.1 (2020). [DOI:10.1063/1.5128411](https://doi.org/10.1063/1.5128411).
+[3] Guimarães, A. B., F. R. Cunha, and R. G. Gontijo. "The influence of hydrodynamic effects on the complex susceptibility response of magnetic fluids undergoing oscillatory fields: New insights for magnetic hyperthermia." *Physics of Fluids* 32.1 (2020). [![DOI](https://img.shields.io/badge/DOI-10.1063/1.5128411-blue)](https://doi.org/10.1063/1.5128411)  
 
-[4] de Carvalho, Douglas Daniel, and Rafael Gabler Gontijo. "Reconstructing a continuous magnetization field based on local vorticity cells, CFD and Langevin dynamics: A new numerical scheme." Journal of Magnetism and Magnetic Materials 514 (2020): 167135.[DOI:10.1016/j.jmmm.2020.167135](https://doi.org/10.1016/j.jmmm.2020.167135).
+[4] de Carvalho, Douglas Daniel, and Rafael Gabler Gontijo. "Reconstructing a continuous magnetization field based on local vorticity cells, CFD and Langevin dynamics: A new numerical scheme." *Journal of Magnetism and Magnetic Materials* 514 (2020): 167135. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.jmmm.2020.167135-blue)](https://doi.org/10.1016/j.jmmm.2020.167135)  
 
+[5] Gontijo, R. G. "A numerical perspective on the relation between particle rotational inertia and the equilibrium magnetization of a ferrofluid." *Journal of Magnetism and Magnetic Materials* 434 (2017): 91-99. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.jmmm.2017.03.051-blue)](https://doi.org/10.1016/j.jmmm.2017.03.051)  
 
-[5] Gontijo, R. G. "A numerical perspective on the relation between particle rotational inertia and the equilibrium magnetization of a ferrofluid." Journal of Magnetism and Magnetic Materials 434 (2017): 91-99.
- [10.1016/j.jmmm.2017.03.051](https://doi.org/10.1016/j.jmmm.2017.03.051).
+[6] Gontijo, Rafael Gabler, and Andrey Barbosa Guimarães. "Langevin dynamic simulations of magnetic hyperthermia in rotating fields." *Journal of Magnetism and Magnetic Materials* 565 (2023): 170171. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.jmmm.2022.170171-blue)](https://doi.org/10.1016/j.jmmm.2022.170171)  
 
+[7] Gontijo, R. G., and F. R. Cunha. "Dynamic numerical simulations of magnetically interacting suspensions in creeping flow." *Powder Technology* 279 (2015): 146-165. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.powtec.2015.03.033-blue)](https://doi.org/10.1016/j.powtec.2015.03.033)  
 
-[6]  Gontijo, Rafael Gabler, and Andrey Barbosa Guimarães. "Langevin dynamic simulations of magnetic hyperthermia in rotating fields." Journal of Magnetism and Magnetic Materials 565 (2023): 170171. [DOI:10.1016/j.jmmm.2022.170171](https://doi.org/10.1016/j.jmmm.2022.170171).
+[8] Gontijo, R. G., S. Malvar, and F. R. Cunha. "Magnetic particulate suspensions from the perspective of a dynamical system." *Powder Technology* 297 (2016): 165-182. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.powtec.2016.04.010-blue)](https://doi.org/10.1016/j.powtec.2016.04.010)  
 
+[9] Gontijo, R. G., and S. Malvar. "Microstructural transition in an ordered set of magnetic spheres immersed in a carrier liquid." *Mechanics Research Communications* 83 (2017): 12-17. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.mechrescom.2017.03.001-blue)](https://doi.org/10.1016/j.mechrescom.2017.03.001)  
 
-[7] Gontijo, R. G., and F. R. Cunha. "Dynamic numerical simulations of magnetically interacting suspensions in creeping flow." Powder technology 279 (2015): 146-165. [DOI:10.1016/j.powtec.2015.03.033](https://doi.org/10.1016/j.powtec.2015.03.033).
- 
-[8] Gontijo, R. G., S. Malvar, and F. R. Cunha. "Magnetic particulate suspensions from the perspective of a dynamical system." Powder technology 297 (2016): 165-182. [DOI:10.1016/j.powtec.2016.04.010](https://doi.org/10.1016/j.powtec.2016.04.010).
+[10] Gontijo, R. G. "Heat transfer increase for a laminar pipe flow of a magnetic fluid subjected to constant heat flux: An initial theoretical approach." *Mechanics Research Communications* 91 (2018): 27-32. [![DOI](https://img.shields.io/badge/DOI-10.1016/j.mechrescom.2018.05.005-blue)](https://doi.org/10.1016/j.mechrescom.2018.05.005)  
 
-[9] Gontijo, R. G., and S. Malvar. "Microstructural transition in an ordered set of magnetic spheres immersed in a carrier liquid." Mechanics Research Communications 83 (2017): 12-17. [DOI:10.1016/j.mechrescom.2017.03.001](https://doi.org/10.1016/j.mechrescom.2017.03.001).
+[11] Berkov, D. V., L. Yu Iskakova, and A. Yu Zubarev. "Theoretical study of the magnetization dynamics of nondilute ferrofluids." *Physical Review E — Statistical, Nonlinear, and Soft Matter Physics* 79.2 (2009): 021407. [![DOI](https://img.shields.io/badge/DOI-10.1103/PhysRevE.79.021407-blue)](https://doi.org/10.1103/PhysRevE.79.021407)  
 
-[10] Gontijo, R. G. "Heat transfer increase for a laminar pipe flow of a magnetic fluid subjected to constant heat flux: An initial theoretical approach." Mechanics Research Communications 91 (2018): 27-32. [DOI:10.1016/j.mechrescom.2018.05.005](https://doi.org/10.1016/j.mechrescom.2018.05.005).
+[12] Ewald, P. "Die Berechnung optischer und elektrostatischer Gitterpotentiale". *Annalen der Physik* 369 (3): 253–287. [![DOI](https://img.shields.io/badge/DOI-10.1002/andp.19213690304-blue)](https://doi.org/10.1002/andp.19213690304)  
 
-[11] Berkov, D. V., L. Yu Iskakova, and A. Yu Zubarev. "Theoretical study of the magnetization dynamics of nondilute ferrofluids." Physical Review E—Statistical, Nonlinear, and Soft Matter Physics 79.2 (2009): 021407. [DOI:10.1103/PhysRevE.79.021407](https://doi.org/10.1103/PhysRevE.79.021407).
-
-[12] Ewald, P. "Die Berechnung optischer und elektrostatischer Gitterpotentiale". Annalen der Physik. 369 (3): 253–287. [DOI:10.1002/andp.19213690304](https://doi:10.1002/andp.19213690304).
-
-[13] Gontijo, R. G. "Micromechanics and microhydrodynamics of magnetic suspensions (in Portuguese)". PhD Thesis, Graduate Program in Mechanical Sciences, University of Brasília, [DOI:10.13140/RG.2.1.1181.2563]([https://doi:10.1002/andp.19213690304](https://tinyurl.com/3wc5nzp6)).
+[13] Gontijo, R. G. "Micromechanics and microhydrodynamics of magnetic suspensions (in Portuguese)". PhD Thesis, Graduate Program in Mechanical Sciences, University of Brasília. [![DOI](https://img.shields.io/badge/DOI-10.13140/RG.2.1.1181.2563-blue)](https://doi.org/10.13140/RG.2.1.1181.2563)  
