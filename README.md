@@ -1,4 +1,32 @@
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![DOI](https://img.shields.io/badge/DOI-10.1016/j.powtec.2023.118720-blue)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Platform](https://img.shields.io/badge/platform-Linux-orange)
 
+
+
+## Table of Contents
+
+- [What is simmsus?](#what-is-simmsus)
+  - [History of the project](#history-of-the-project)
+- [General structure of the source-code](#general-structure-of-the-source-code)
+  - [simmsus.f90](#simmsusf90)
+  - [input.f90](#inputf90)
+  - [main.f90](#mainf90)
+  - [subroutines.f90](#subroutinesf90)
+  - [statistics.f90](#statisticsf90)
+  - [variables.f90](#variablesf90)
+  - [makefile](#makefile)
+- [Physics and numerics](#physics-and-numerics)
+  - [Periodic calculations](#periodic-calculations)
+  - [Brownian motion and random numbers](#brownian-motion-and-random-numbers)
+  - [Calculation of forces and torques](#calculation-of-forces-and-torques)
+  - [Translational and rotational particle inertia](#translational-and-rotational-particle-inertia)
+  - [Initial condition](#initial-condition)
+  - [Field excitations](#field-excitations)
+- [Code validation](#code-validation)
+- [Gallery](#gallery)
+- [References](#references)
 
 # What is simmsus?
 
@@ -42,6 +70,8 @@ In order to compile the source-code you must open a Linux terminal and run the m
 Since the origins of its earlier development, SIMMSUS has been tested and compiled exclusively on Linux using the Intel Fortran Compiler and up to this version of the manual we have no idea if it compiles or runs using other compilers or operational systems.
 
 In order to run a simulation, the user will need only 2 files: the executable file (**simmsus.ex**) and the input configuration file **simconfig.dat**. The user can drag these two files to a new folder to run a new set of numerical simulations defined on the configuration file **simconfig.dat**. 
+
+There is also a shell scripting named **simconfig_generator.sh**, which is a simple form in which the user can generate his own **simconfig.dat** file just by answering a path of questions that builds the configuration file at the end of the process.
 
 The configuration file is a text file with several questions that the user should answer in order to direct the path that **SIMMSUS** should cross in order to produce a specific set of simulations for the intended physics. We will talk about this file later. Figure bellow shows how the source-code files are related to each other.
 
