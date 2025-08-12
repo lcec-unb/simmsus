@@ -9,9 +9,9 @@
 
 ## Table of Contents
 
-- [📌 Overview](#overview)
+- [Overview](#overview)
   - [History of the project](#history-of-the-project)
-- [📂 Structure of the source-code](#structure-of-the-source-code)
+- [Structure of the source-code](#structure-of-the-source-code)
   - [simmsus.f90](#simmsusf90)
   - [input.f90](#inputf90)
   - [main.f90](#mainf90)
@@ -19,27 +19,25 @@
   - [statistics.f90](#statisticsf90)
   - [variables.f90](#variablesf90)
   - [makefile](#makefile)
-- [📐 Physics and numerics](#physics-and-numerics)
+- [Physics and numerics](#physics-and-numerics)
   - [Periodic calculations](#periodic-calculations)
   - [Brownian motion and random numbers](#brownian-motion-and-random-numbers)
   - [Calculation of forces and torques](#calculation-of-forces-and-torques)
   - [Translational and rotational particle inertia](#translational-and-rotational-particle-inertia)
   - [Initial condition](#initial-condition)
   - [Field excitations](#field-excitations)
-- [🧪 Code validation](#code-validation)
-- [🖼️Gallery](#gallery)
-- [📚References](#references)
+- [Code validation](#code-validation)
+- [Gallery](#gallery)
+- [References](#references)
 
 
 # Overview
 
 **SIMMSUS** is a research code, initially written in **FORTRAN** that simulates the motion of a system of interacting particles. These particles can be simulated in different scenarios and may interact through different physical mechanisms. The code was initially developed for studying the physics of magnetic spherical particles in suspensions in order to better understand the properties of magnetic fluids (ferrofluids).
 
-The project is currently evolving along two main fronts:
+The project is currently evolving along the following front:
 
-    Enhancement of the FORTRAN version, focusing on improving user interaction through Bash scripts with dialog for menu creation and parameter collection.
-
-    Development of a new C++ version, available in the CPP branch.
+    - Development of a new C++ version, available in the CPP branch in order to future HPC implementations
 
 ⚠ Important: the CPP branch is under active development and not ready for use. We recommend using only the main FORTRAN version until the new implementation is stable.
 
