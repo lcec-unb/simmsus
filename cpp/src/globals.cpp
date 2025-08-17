@@ -12,6 +12,7 @@
  */
 #include <header/globals.hpp>
 
+Configuration *configuration;
 int nnr;
 int npast;
 int numRealizations;
@@ -58,7 +59,7 @@ double *AUXF0, *AUXF1, *AUXF2;
 double *AUXT0, *AUXT1, *AUXT2;
 double *cof01, *cof11, *cof02;
 double *cof12, *cof03, *cof13;
-double *cof04, *cof14, *cof05; 
+double *cof04, *cof14, *cof05;
 double *cof15, *cof06, *cof16;
 double *cof07, *cof17, *cof08;
 double *cof18;
