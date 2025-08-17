@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
-#include <header/config.hpp> //Migrar para TomL
+#include <header/config.hpp>
 #include <header/constants.hpp>
 #include <header/globals.hpp>
 #include <header/particleDistribution.hpp>
@@ -24,9 +24,6 @@
 #include <header/initialCondition.hpp>
 #include <header/dipoleDistribute.hpp>
 
-// #include <brownian.hpp>
-// #include <repulsion.hpp>
-// #include <periodicStructure.hpp>
 using namespace std;
 
 int main(int argc, char **argv){
@@ -36,10 +33,10 @@ if (argc < 2){
 }else{
 //Read the Input File and Create the Object
 
-Configuration configuration(argv[1]);
+configuration  = new Configuration(argv[1]);
 
-numParticles = configuration.getNumpart();
-numRealizations = configuration.getNumreal();
+numParticles = configuration->getNumpart();
+numRealizations = configuration->getNumreal();
 
 //Globals Initializations
 X0 = new double[numRealizations * numParticles]{};
@@ -134,22 +131,22 @@ AUXF0 = new double[numParticles]{};
 AUXF1 = new double[numParticles]{};
 AUXF2 = new double[numParticles]{};
 
-shearratei = configuration.getDynincrshrate(); //! shear-rate -> Arquivo de configuracao
-per = (4.0 / 3.0) * configuration.getBrownianpecletnum(); //! rotational Peclet number -> Arquivo de configuracao
+shearratei = configuration->getDynincrshrate();
+per = (4.0 / 3.0) * configuration->getBrownianpecletnum(); 
 
-phi = configuration.getVolumefracpart();
+phi = configuration->getVolumefracpart();
 
 totalRealParticle = numParticles * numRealizations;
 
 npast = 2;
-if(!configuration.getStatanalysis()){
-    npast = configuration.getSimulationtime()  / configuration.getNumtimestep();
+if(!configuration->getStatanalysis()){
+    npast = configuration->getSimulationtime()  / configuration->getNumtimestep();
 }
 
 // Number of random numbers used in each time-step
 nnr = 3 * totalRealParticle;
 
-if(configuration.getAccounthi() || configuration.getPmf() || configuration.getPmt()){
+if(configuration->getAccounthi() || configuration->getPmf() || configuration->getPmt()){
     periodicity = true;
 }
 
@@ -157,20 +154,20 @@ diam = new double[totalRealParticle]{};
 betaVec = new double[totalRealParticle]{};
 
 // Defining the size of the particles
-particleDistribution(configuration.getMonopolidisp(), diam, betaVec);
+particleDistribution(configuration->getMonopolidisp(), diam, betaVec);
 
 // Calculating the size of the simulation box based on the 
 // number of particles and on the volume fraction defined
 // by the user in the simconfig.dat
 
-boxSize(numParticles, configuration.getVolumefracpart(), configuration.getBoxaspectratio(), configuration.getInitialspheraggr());
+boxSize(numParticles, configuration->getVolumefracpart(), configuration->getBoxaspectratio(), configuration->getInitialspheraggr());
 
-if(configuration.getMp()){ 
+if(configuration->getMp()){ 
 
-    distributeDipole(configuration.getOrdereddipoles(), configuration.getPercentnonmagpart(), configuration.getMixmagnonmagpart());    
+    distributeDipole(configuration->getOrdereddipoles(), configuration->getPercentnonmagpart(), configuration->getMixmagnonmagpart());    
 }
 
-initialCondition(configuration.getInitialspheraggr());
+initialCondition();
 
 qsi = pow(M_PI,0.5)  / (pow(l * l * h,(1.0/3.0)));
 
@@ -181,7 +178,7 @@ qsi = pow(M_PI,0.5)  / (pow(l * l * h,(1.0/3.0)));
 if(periodicity){
     double wave = pow(nbr,(1.0/3.0));
     if(wave == 5.0){
-        if(configuration.getAccounthi()){
+        if(configuration->getAccounthi()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];
@@ -189,7 +186,7 @@ if(periodicity){
             cof03 = new double[nGreen];
             cof13 = new double[nGreen];
             greenTableLigaihWave5(nGreen, qsi, l, nb, wave, h, cof01, cof11, cof02, cof12, cof03, cof13);
-        }else if(configuration.getPmt()){
+        }else if(configuration->getPmt()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];
@@ -204,7 +201,7 @@ if(periodicity){
             cof17 = new double[nGreen];
             greenTableTmagper5(nGreen, qsi, l, nb, wave, h, cof01, cof11, cof02, cof12, cof03, cof13,
             cof04, cof14, cof05, cof15, cof07, cof17);
-        }else if(configuration.getPmf()){
+        }else if(configuration->getPmf()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];
@@ -221,7 +218,7 @@ if(periodicity){
             cof06, cof16, cof08, cof18);
         }
     }else if(wave == 3.0){
-        if(configuration.getAccounthi()){
+        if(configuration->getAccounthi()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];
@@ -229,7 +226,7 @@ if(periodicity){
             cof03 = new double[nGreen];
             cof13 = new double[nGreen];
             greenTableLigaihWave3(nGreen, qsi, l, nb, wave, h, cof01, cof11, cof02, cof12, cof03, cof13);
-        }else if(configuration.getPmt()){
+        }else if(configuration->getPmt()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];
@@ -244,7 +241,7 @@ if(periodicity){
             cof17 = new double[nGreen];
             greenTableTmagper3(nGreen, qsi, l, nb, wave, h, cof01,  cof11, cof02, cof12, cof03, cof13,
             cof04, cof14, cof05, cof15, cof07, cof17);
-        }else if(configuration.getPmf()){
+        }else if(configuration->getPmf()){
             cof01 = new double[nGreen];
             cof11 = new double[nGreen];
             cof02 = new double[nGreen];

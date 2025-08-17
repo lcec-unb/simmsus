@@ -14,7 +14,7 @@
 #ifndef SRC_HEADERS_INITIALCONDITION_HPP_
 #define SRC_HEADERS_INITIALCONDITION_HPP_
 
-void initialCondition(bool initialSphericalAggregate);
+void initialCondition();
 
 
 #endif /* SRC_HEADERS_INITIALCONDITION_HPP_ */
