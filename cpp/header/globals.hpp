@@ -10,16 +10,20 @@
  * or leandro.zanotto@gmail.com (Leandro Zanotto).
  *
  */
+#include <math.h>
+#include <header/config.hpp>
 
 #ifndef SRC_HEADERS_GLOBALS_HPP_
 #define SRC_HEADERS_GLOBALS_HPP_
-#include <math.h>
 
+extern Configuration *configuration;
 extern int nnr;
 extern int npast;
 extern int numRealizations;
 extern int numParticles;
 extern int num;
+extern double qsi;
+extern int k;
 extern double l;
 extern double h;
 extern int totalRealParticle;
