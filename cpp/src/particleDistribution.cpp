@@ -16,28 +16,36 @@
 #include <header/randomic.hpp>
 #include <header/particleDistribution.hpp>
 
-void particleDistribution(bool poliDispersidade, double *diam, double *beta){
+void particleDistribution(double *diam, double *beta)
+{
 
+    bool poliDispersidade = configuration->getMonopolidisp();
+    
+    if (poliDispersidade)
+    {
+        // Allocating variables in the memory
+        double *diarand = new double[totalRealParticle];
+        randomic(1.5, 2.5, (numParticles * numRealizations), diarand);
 
-if(poliDispersidade){
-    // Allocating variables in the memory
-    double *diarand = new double[totalRealParticle];
-    randomic(1.5,2.5, (numParticles * numRealizations), diarand);
-
-    for(int j = 0; j < numRealizations; j++){
-        for(int i = 0; i < numParticles; i++){
-            diam[j * numParticles + i] = diarand[j * numParticles + i];
-            beta[j * numParticles + i] = diam[j * numParticles + i] / diam[j * numParticles + 1];
+        for (int j = 0; j < numRealizations; j++)
+        {
+            for (int i = 0; i < numParticles; i++)
+            {
+                diam[j * numParticles + i] = diarand[j * numParticles + i];
+                beta[j * numParticles + i] = diam[j * numParticles + i] / diam[j * numParticles + 1];
+            }
+        }
+        delete[] diarand;
+    }
+    else
+    {
+        for (int j = 0; j < numRealizations; j++)
+        {
+            for (int i = 0; i < numParticles; i++)
+            {
+                diam[j * numParticles + i] = 2.0;
+                beta[j * numParticles + i] = diam[j * numParticles + i] / diam[j * numParticles + 1];
+            }
         }
     }
-    delete[] diarand;
-}
-else {
-    for(int j = 0; j < numRealizations; j++){
-        for(int i = 0; i < numParticles; i++){
-            diam[j * numParticles + i] = 2.0;
-            beta[j * numParticles + i] = diam[j * numParticles + i] / diam[j * numParticles + 1];
-        }
-    }
-}
 }

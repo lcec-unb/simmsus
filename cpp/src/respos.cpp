@@ -11,17 +11,6 @@
  *
  */
 
-// !*************************************************!
-// ! 		     SIMMSUS			  ! 
-// !SUBROUTINE: respos				  !					         
-// !Last update: 16/07/2023			  !
-// !*************************************************!
-
-// !*************************************************!
-// ! Subroutine resposible for calculating the parti-!
-// ! cles position.				  !
-// !*************************************************!
-
 #include <header/respos.hpp>
 
 double respos(double a,double b,double c){

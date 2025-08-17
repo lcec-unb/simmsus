@@ -11,36 +11,40 @@
  *
  */
 
-//*************************************************
-// 		     SIMMSUS			   
-// SUBROUTINE: gravity				  					         
-// Last update: 16/07/2023			  
-//*************************************************
-    
-//*************************************************
-// Subroutine responsible for implementing gravita-
-// tional forces					  
-//*************************************************
 #include <iostream>
 #include <randomic.hpp>
 #include <math.h>
 #include <globals.hpp>
 
-void gravity(bool gravidade, double *beta){
-int i,j;
+void gravity(double *beta)
+{
+    bool gravidade = configuration->getSedimentation();
+    int i, j;
 
-for(j = 0; j < numRealizations; j++){
-    for(i = 0; i < numParticles; i++){
-        if(gravidade){      
-            FORCAS30[j * numParticles + i] = 0.0;
-            FORCAS31[j * numParticles + i] = 0.0;
-            FORCAS32[j * numParticles + i] = pow(-beta[j * numParticles + i],3.0);
-        }
-        else {     
-            FORCAS30[j * numParticles + i] = 0.0;
-            FORCAS31[j * numParticles + i] = 0.0;
-            FORCAS32[j * numParticles + i] = 0.0;
+    if (gravidade)
+    {
+
+        for (j = 0; j < numRealizations; j++)
+        {
+            for (i = 0; i < numParticles; i++)
+            {
+
+                FORCAS30[j * numParticles + i] = 0.0;
+                FORCAS31[j * numParticles + i] = 0.0;
+                FORCAS32[j * numParticles + i] = pow(-beta[j * numParticles + i], 3.0);
+            }
         }
     }
-} 
+    else
+    {
+        for (j = 0; j < numRealizations; j++)
+        {
+            for (i = 0; i < numParticles; i++)
+            {
+                FORCAS30[j * numParticles + i] = 0.0;
+                FORCAS31[j * numParticles + i] = 0.0;
+                FORCAS32[j * numParticles + i] = 0.0;
+            }
+        }
+    }
 }
