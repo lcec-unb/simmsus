@@ -14,7 +14,6 @@
 #ifndef SRC_HEADERS_BROWNIAN_HPP_
 #define SRC_HEADERS_BROWNIAN_HPP_
 
-void brownian(bool gravidade, bool shear, bool torque, double *beta, double Pe, double dt);
-
+void brownian(double *beta, double Pe, double dt);
 
 #endif /* SRC_HEADERS_BROWNIAN_HPP_ */

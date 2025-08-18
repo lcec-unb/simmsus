@@ -14,7 +14,7 @@
  #ifndef SRC_HEADERS_MAGNETICFORCES_HPP_
  #define SRC_HEADERS_MAGNETICFORCES_HPP_
 
-void magneticForces(bool mistura, bool gravidade,bool shear, double lambda, double alpha2, double percentual, double brownianmpecletnum);
+void magneticForces();
 
  
 #endif /* SRC_HEADERS_MAGNETICFORCES_HPP_ */
