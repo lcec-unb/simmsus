@@ -1237,7 +1237,11 @@ realk=k
 
 !This expression (1.0 + 1.2/realn) is just a numerical artificie used for visualization purposes in tecplot
 
-write(1093*p,*) (reali-1.0)*dx*(1.0 + (1.2/realn)), (realj-1.0)*dy*(1.0 + (1.2/realn)), (realk-1.0)*(1.0 + (1.2/realn))*dz, philocal(p,auxiliar)
+write(1093*p,*) &
+  (reali-1.0)*dx*(1.0 + (1.2/realn)), &
+  (realj-1.0)*dy*(1.0 + (1.2/realn)), &
+  (realk-1.0)*(1.0 + (1.2/realn))*dz, &
+  philocal(p,auxiliar)
 
 
 end do

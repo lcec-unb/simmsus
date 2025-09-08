@@ -12,6 +12,7 @@
 - [Overview](#overview)
   - [History of the project](#history-of-the-project)
 - [Structure of the source-code](#structure-of-the-source-code)
+    - [Main Program Structure (`simmsus.f90`)](#main-program-structure-simmsusf90)
   - [simmsus.f90](#simmsusf90)
   - [input.f90](#inputf90)
   - [main.f90](#mainf90)
@@ -36,8 +37,7 @@
 **SIMMSUS** is a research code, initially written in **FORTRAN** that simulates the motion of a system of interacting particles. These particles can be simulated in different scenarios and may interact through different physical mechanisms. The code was initially developed for studying the physics of magnetic spherical particles in suspensions in order to better understand the properties of magnetic fluids (ferrofluids).
 
 The project is currently evolving along the following front:
-
-    - Development of a new C++ version, available in the CPP branch in order to future HPC implementations
+  - Development of a new C++ version, available in the CPP branch in order to future HPC implementations
 
 ⚠ Important: the CPP branch is under active development and not ready for use. We recommend using only the main FORTRAN version until the new implementation is stable.
 
@@ -74,7 +74,26 @@ There is also a shell scripting named **simconfig_generator.sh**, which is a sim
 
 The configuration file is a text file with several questions that the user should answer in order to direct the path that **SIMMSUS** should cross in order to produce a specific set of simulations for the intended physics. We will talk about this file later. Figure bellow shows how the source-code files are related to each other.
 
-<center><img src="gallery/main_structure.png" width="500" height="300"></center>
+### Main Program Structure (`simmsus.f90`)
+
+The main program is organized into three key calls, which rely on module-defined variables and subroutines:
+
+1. **`call input`**
+   - Reads input parameters.
+   - Uses **module variables**.
+
+2. **`call main`**
+   - Runs the main simulation loop.
+   - Uses:
+     - **module variables**
+     - **module subroutines**
+
+3. **`if (statistics) then ... end if`**
+   - If statistics are enabled:
+     - **`call statistics`**
+       - Computes and outputs statistical data.
+       - Uses **module variables**.
+
 
 The file **simmsus.f90** basically calls other files from the source code structure in a straightfoward order. The first call is related to the reading of the simulation data. The file **input.f90** reads the configuration file simconfig.dat and storage in logical, real and integer variables all the information necessary to run a set of simultaneous configurations. **SIMMSUS** may run a single simulation or perform several simultaneous numerical experiments varying the initial configuration of the particles and the set of random numbers used to emulate Brownian forces and torques. Therefore, the use may configure in the **simconfig.dat** file all the informations regarding all the simultaneous numerical experiments. 
 
