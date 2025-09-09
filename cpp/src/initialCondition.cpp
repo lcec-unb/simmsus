@@ -24,10 +24,11 @@
  3 - An initial spherical aggregate
 *************************************************/
 #include <iostream>
+#include <cmath>
 #include <header/globals.hpp>
 #include <header/randomic.hpp>
 #include <header/initialCondition.hpp>
-#include <math.h>
+
 using namespace std;
 
 void initialCondition()

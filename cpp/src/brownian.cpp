@@ -12,9 +12,11 @@
  */
 #include <iostream>
 #include <randomic.hpp>
-#include <math.h>
+#include <cmath>
 #include <globals.hpp>
 #include <header/brownian.hpp>
+
+using namespace std;
 
 void brownian(double *beta)
 {

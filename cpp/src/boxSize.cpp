@@ -10,9 +10,11 @@
  * or leandro.zanotto@gmail.com (Leandro Zanotto).
  *
  */
-#include <math.h>
+#include <cmath>
 #include <header/globals.hpp>
 #include <header/boxSize.hpp>
+
+using namespace std;
 
 void boxSize(int N, double phi, int razao, bool initialAgregate)
 {

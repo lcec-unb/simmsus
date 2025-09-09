@@ -11,7 +11,9 @@
  *
  */
 #include <globals.hpp>
-#include <math.h>
+#include <cmath>
+
+using namespace std;
 
 void repulsion(double *beta)
 {

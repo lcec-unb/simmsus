@@ -13,8 +13,10 @@
 
 #include <iostream>
 #include <randomic.hpp>
-#include <math.h>
+#include <cmath>
 #include <globals.hpp>
+
+using namespace std;
 
 void gravity(double *beta)
 {

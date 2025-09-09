@@ -16,11 +16,13 @@
  * of the dipole moments of all particles in all realizations
  ****************************************************************/
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <header/globals.hpp>
 #include <header/randomic.hpp>
+
+using namespace std;
 
 void distributeDipole(bool orderedDipoles, double percentNonMagPart, bool mixMagNonMagPart)
 {

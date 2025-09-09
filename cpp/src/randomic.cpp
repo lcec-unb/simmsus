@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <header/randomic.hpp>
 #include <random>
-#include <math.h>
+#include <cmath>
 
 void randomic(double start, double end, int total, double *rndNArray)
 {

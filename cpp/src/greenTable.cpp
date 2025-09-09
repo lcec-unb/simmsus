@@ -20,9 +20,11 @@
  * called any time a force or torque on a particle is calculated
  * through the code in future loops.
  */
-#include <math.h>
+#include <cmath>
 #include <header/config.hpp>
 #include <header/greenTable.hpp>
+
+using namespace std;
 
 void greenTableLigaihWave5(int nGreen, double sig, double e, int f, double wave, double y, double *cof01, double *cof11,
 						   double *cof02, double *cof12, double *cof03, double *cof13)

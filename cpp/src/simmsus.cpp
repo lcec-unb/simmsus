@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <header/config.hpp>
 #include <header/constants.hpp>
 #include <header/globals.hpp>
@@ -261,6 +261,8 @@ if(periodicity){
     }
 }
 periodicStructure();
+
+
 cout << numParticles << "\n";
 for(int j = 0; j < 1; j++){    
     for(int i = 0; i < numParticles; i++){        

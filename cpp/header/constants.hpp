@@ -14,7 +14,7 @@
 #ifndef SRC_HEADERS_CONSTANTS_HPP_
 #define SRC_HEADERS_CONSTANTS_HPP_
 
-#include <math.h>
+#include <cmath>
 // Pre-calibrated numerical variables
 const int nb = 125; // number of phiscal cells for periodic interactions
 const int nbr = 27; // number of reciprocal cells for periodic interactions

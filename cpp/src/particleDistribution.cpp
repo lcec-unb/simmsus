@@ -11,10 +11,12 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include <header/globals.hpp>
 #include <header/randomic.hpp>
 #include <header/particleDistribution.hpp>
+
+using namespace std;
 
 void particleDistribution(double *diam, double *beta)
 {

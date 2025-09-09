@@ -23,8 +23,10 @@
 // !*************************************************!
 #include <iostream>
 #include <numeric>
-#include <math.h>
+#include <cmath>
 #include <header/globals.hpp>
+
+using namespace std;
 
 void rotatingField(double alfa, double wt, bool mistura, bool gravidade, bool shear, double brownianmpecletnum){
 
