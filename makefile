@@ -1,31 +1,46 @@
 #-----------------------------------------------------#
-# 	COMPILATION INSTRUCTIONS FOR SIMMSUS 	      #
-#                                                     #
-#               Written initially by       	      #
-#               Rafael Gabler Gontijo                 #
-#                                                     #
-# Goal: to compile a given version of SIMMSUS	      #
+# SIMMSUS - Makefile com perfis gfortran e ifx
 #-----------------------------------------------------#
-#
-# Code source files (Linux)
-#
-SRC-LNX = subroutines.f90 variables.f90 input.f90  \
-          main.f90 statistics.f90 simmsus.f90  \
-        
- OBJ-LNX = $(SRC-LNX:.f90=.o)
 
-# Compiler definition and flags
+# Alvo padrão (pode ser sobrescrito via "make gfortran" ou "make ifx")
+FC      ?= gfortran
+FFLAGS  ?= -O2 -std=f2008 -fopenmp -fmax-stack-var-size=1073741824
 
-ENGINE-LNX = ifx #ifort
-FLAGS-LNX =  -m64 -O2 #-qopenmp
+EXEC = simmsus.ex
 
-# Executable file generation (Linux)
+SRC = variables.f90 subroutines.f90 input.f90 statistics.f90 simmsus.f90 main.f90
+OBJ = $(SRC:.f90=.o)
 
-simmsus.ex : $(SRC-LNX) 
-	$(ENGINE-LNX) $(FLAGS-LNX) -o simmsus.ex $(SRC-LNX)
+.PHONY: all clean gfortran ifx
 
-# Cleaning command
-clean :
-	rm simmsus.ex
-	
-	
+# Perfis de compilação
+GFORTRAN_FLAGS = -O2 -std=f2008 -fopenmp -fmax-stack-var-size=1073741824
+IFX_FLAGS      = -O2 -qopenmp -heap-arrays
+
+gfortran:
+	$(MAKE) all FC=gfortran FFLAGS='$(GFORTRAN_FLAGS)'
+
+ifx:
+	$(MAKE) all FC=ifx FFLAGS='$(IFX_FLAGS)'
+
+# Alvo principal
+all: $(EXEC)
+
+$(EXEC): $(OBJ)
+	$(FC) $(FFLAGS) -o $@ $(OBJ)
+
+# Regra genérica de compilação
+%.o: %.f90
+	$(FC) $(FFLAGS) -c $<
+
+# Dependências entre módulos (garantem ordem correta)
+subroutines.o: variables.o
+input.o:       variables.o subroutines.o
+statistics.o:  variables.o subroutines.o
+simmsus.o:     variables.o subroutines.o
+main.o:        variables.o subroutines.o input.o statistics.o simmsus.o
+
+# Limpeza
+clean:
+	rm -f *.o *.mod $(EXEC)
+

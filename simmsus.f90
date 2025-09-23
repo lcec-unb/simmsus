@@ -1,30 +1,35 @@
 program simmsus
 use variables
-implicit none
 
-print *,'******************************************************************************'
-print *,'*                                                                            *'
-print *,'*                SIMMSUS - SIMULATION OF MAGNETIC SUSPENSIONS	              *'
-print *,'*____________________________________________________________________________*'
-print *,'*                                                                            *'
-print *,'*                     PROF. RAFAEL GABLER GONTIJO, PhD                       *'
-print *,'*____________________________________________________________________________*'
-print *,'*                                                                            *'
-print *,'*                        IN DEVELOPMENT SINCE 2009                           *'
-print *,'*____________________________________________________________________________*'
-print *,'*                                                                            *'
-print *,'*                         LAST UPDATE: 16/07/2023                            *'
-print *,'*                                                                            *'
-print *,'******************************************************************************'
+implicit none
+  real    :: ti, tf, tpros
+
+
+print *,'*****************************************'
+print *,'*                                       *'
+print *,'*               SIMMSUS                 *'
+print *,'*  SIMULATION OF MAGNETIC SUSPENSIONS   *'
+print *,'*_______________________________________*'
+print *,'*                                       *'
+print *,'*   PROF. RAFAEL GABLER GONTIJO, PhD    *'
+print *,'*_______________________________________*'
+print *,'*                                       *'
+print *,'*      IN DEVELOPMENT SINCE 2009        *'
+print *,'*_______________________________________*'
+print *,'*                                       *'
+print *,'*       LAST UPDATE: 12/09/2025         *'
+print *,'*                                       *'
+print *,'*****************************************'
 print *,''
-print *,'******************************************************************************'
-print *,'*                                                                            *'
-print *,'*       Numerical simulation of magnetic suspensions of hard spheres         *'  
-print *,'*____________________________________________________________________________*'
-print *,'*                                                                            *'
-print *,'*                       Langevin and Stokesian Dynamics                      *'
-print *,'*                                                                            *'
-print *,'******************************************************************************'
+print *,'*****************************************'
+print *,'*                                       *'
+print *,'*        Numerical simulation of        *'
+print *,'* magnetic suspensions of hard spheres  *'  
+print *,'*_______________________________________*'
+print *,'*                                       *'
+print *,'*    Langevin and Stokesian Dynamics    *'
+print *,'*                                       *'
+print *,'*****************************************'
 print *,''
 
 ! Collecting simulation data
