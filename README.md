@@ -64,13 +64,23 @@ These are the following files:
 - **variables.f90**
 - **makefile**
 
-In order to compile the source-code you must open a Linux terminal and run the make command. For the first time you should run the make command twice. In the first time the compiler will produce the modules from the files **variables.f90** and **subroutines.f90** and the second run will use these recently created modules to produce the executable file **simmsus.ex**.
-
-Since the origins of its earlier development, SIMMSUS has been tested and compiled exclusively on Linux using the Intel Fortran Compiler and up to this version of the manual we have no idea if it compiles or runs using other compilers or operational systems.
-
-In order to run a simulation, the user will need only 2 files: the executable file (**simmsus.ex**) and the input configuration file **simconfig.dat**. The user can drag these two files to a new folder to run a new set of numerical simulations defined on the configuration file **simconfig.dat**. 
-
-There is also a shell scripting named **simconfig_generator.sh**, which is a simple form in which the user can generate his own **simconfig.dat** file just by answering a path of questions that builds the configuration file at the end of the process.
+The source files can be compiled either with ifx (intel fortran compiler, old ifort) or with gfortran. In order to compile the source-code you must open a Linux terminal and run 
+```
+make ifx         #for compiling with ifx
+```
+or
+```
+make gfortran    #for compiling with gfortran
+```
+In order to run a simulation, the user will need only 2 files: the executable file (**simmsus.ex**) and the input configuration file **simconfig.dat**. The user can drag these two files to a new folder to run a new set of numerical simulations defined on the configuration file **simconfig.dat** and start to simulate by running:
+```
+./simmsus.ex
+```
+There is also a shell scripting named **simconfig_generator.sh**, where the user can generate his own **simconfig.dat** file just by answering a path of questions that builds the configuration file at the end of the process. In order to use **simconfig_generator.sh** just type:
+```
+chmod +x simconfig_generator.sh
+./simconfig_generator.sh
+```
 
 The configuration file is a text file with several questions that the user should answer in order to direct the path that **SIMMSUS** should cross in order to produce a specific set of simulations for the intended physics. We will talk about this file later. Figure bellow shows how the source-code files are related to each other.
 
