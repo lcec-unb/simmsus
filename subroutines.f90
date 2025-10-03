@@ -1603,6 +1603,477 @@ subroutine periodic_interactions(k)
   implicit none
   integer, intent(in) :: k
 
+  !------------------- parâmetros de corte (agora independentes) -------------------
+  ! cutoff: ativa/desativa os cortes. Se .false., soma completa.
+  logical :: cutoff
+  ! Y1 controla o corte no real: rcut = Y1/qsi
+  ! Y2 controla o corte no recíproco: kcut = 2*qsi*Y2
+  real :: Y1, Y2
+  real :: rcut, rcut2, kcut
+  !---------------------------------------------------------------------------------
+
+  ! variáveis locais
+  real    :: mobilidade_self(3,3), mobilidade1(3,3), mobilidade2(3,3)
+  real    :: coeficiente1, coeficiente2, coeficiente3, coeficiente4
+  real    :: coeficiente5, coeficiente6, coeficiente7, coeficiente8
+  real    :: rn(3)
+  integer :: aux_periodico
+  integer :: q, i, s, j, a, d
+  integer, parameter :: dmin = 2, dmax = 9999
+  real    :: eps
+  real    :: Tx, Ty, Tz, T2, diag_caixa, r2, modrij
+  real    :: kr, kr2, modk
+  real    :: termo1, termo2, termo3, termo4, termo5
+  real    :: konda(3), knormal(3)
+
+  ! valores numéricos robustos
+  eps = max(1.0e-12, tiny(1.0))
+
+  ! ----------------- escolha do corte -----------------
+  cutoff = .true.   ! <<< ajuste aqui: .true. usa corte; .false. faz soma completa
+  Y1     = 5.0      ! <<< varrer real: 4,6,8,10 ...
+  Y2     = 50.0      ! <<< varrer recíproco: 3,5,7,9 ...
+
+  if (cutoff) then
+     rcut  = Y1 / qsi
+     kcut  = 2.0 * qsi * Y2
+  else
+     rcut  = huge(1.0)
+     kcut  = huge(1.0)
+  end if
+  rcut2 = rcut * rcut
+  ! ----------------------------------------------------
+
+  diag_caixa = sqrt(l*l + l*l + h*h)
+
+  ! We start by computing first the sums in the real space 
+  ! Here, nb denotes the number of physical boxes. This
+  ! number can be different from nbr, which denotes the
+  ! nubmer of reciprocal boxes. In simconfig.dat we 
+  ! recommend the user to set nb=125 and nbr=27. These
+  ! values ensure a good precision when computing the 
+  ! average sedimentation velocity of a suspension of
+  ! spheres in Creeping-flow
+
+  ! This loop works like this: we fix a realization and
+  ! a given particle and the make a sweep computing the
+  ! long-range interactions between this particles and
+  ! all the other particles in the surrounding boxes.
+  ! We then, extend this procedure to all real particles
+  ! in all the simultaneous numerical experiments.
+
+  do q=1,rea
+    do i=1,N
+
+      ! Building the self-mobility matrix (independe de j,s)
+      if (ligaih) then
+        mobilidade_self = 0.0
+        do a=1,3
+          mobilidade_self(a,a)= 1.0 - (6.0*(pi**(-0.5))*qsi) + ((40.0/3.0)*(pi**(-0.5))*(qsi**3.0))
+        end do
+      end if
+
+      do s=1,nb
+        do j=1,N
+
+          aux_periodico = abs(ILF(s,1)) + abs(ILF(s,2)) + abs(ILF(s,3))
+
+          ! Checking the distance between a particle "i" and other particle "j" in the real boxes (physical and images)  
+          ! Calculating the "r" vector (distance)
+
+          if (.not. shear) then
+            Tx = ILF(s,1)*l
+            Ty = ILF(s,2)*l
+            Tz = ILF(s,3)*h
+          else
+            Tx = ILF(s,1)*l
+            Ty = (ILF(s,2)*l) + (k*ILF(s,3)*shearrate*dt)
+            Tz = ILF(s,3)*h
+          end if
+
+          ! culling rápido por caixa imagem (se muito longe, não alcança rcut na pior hipótese)
+          T2 = Tx*Tx + Ty*Ty + Tz*Tz
+          if (sqrt(T2) - diag_caixa > rcut) cycle
+
+          ! vetor r_ij
+          rij(1) = X(q,i,1) - (X(q,j,1) + Tx)
+          rij(2) = X(q,i,2) - (X(q,j,2) + Ty)
+          rij(3) = X(q,i,3) - (X(q,j,3) + Tz)
+
+          ! Normalizing the "r" vector -> r/|r|
+          r2 = rij(1)*rij(1) + rij(2)*rij(2) + rij(3)*rij(3)
+          if (r2 <= 4.0) cycle         ! ignora esfera interna (r <= 2a) — igual ao seu >2.0
+          if (r2 >  rcut2) cycle       ! corte no real
+
+          modrij = sqrt(r2)
+
+          if (modrij .ge. eps) then
+            rn(1) = rij(1)/modrij
+            rn(2) = rij(2)/modrij
+            rn(3) = rij(3)/modrij
+          else
+            rn = 0.0
+          end if
+
+          d = 1 + int(9999.0*(modrij-2.0)/((3.0**0.5)*l*(nb**(1.0/3.0))))
+          if (d < dmin) d = dmin
+          if (d > dmax) d = dmax
+          diferenca_interpol1 = (modrij - cof1(1,d))
+
+          !************ SUMS IN THE PHYSICAL SPACE IN THE REAL BOX (WHERE THE REAL PARTICLES ARE) AND "IMAGE" BOXES***********!
+
+          !******************************* HYDRODYNAMIC INTERACTIONS *********************************************************!
+
+          ! Building the self-mobility matrix
+          if (aux_periodico.eq.0 .and. i.eq.j) then
+            ! já calculada fora
+          end if
+
+          ! Building the called mobility matrix 1 (lattice sum in the physical space)
+          if (ligaih) then
+            if (modrij.gt.2.0) then
+
+              ! Interpolating the pre-calculated Green functions
+              if (diferenca_interpol1.gt.0.0) then
+                coeficiente1 = cof1(2,d) + ((modrij-cof1(1,d))/(cof1(1,d+1)-cof1(1,d))) * (cof1(2,d+1)-cof1(2,d))
+                coeficiente2 = cof2(2,d) + ((modrij-cof2(1,d))/(cof2(1,d+1)-cof2(1,d))) * (cof2(2,d+1)-cof2(2,d))
+              else
+                coeficiente1 = cof1(2,d-1) + ((modrij-cof1(1,d-1))/(cof1(1,d)-cof1(1,d-1))) * (cof1(2,d)-cof1(2,d-1))
+                coeficiente2 = cof2(2,d-1) + ((modrij-cof2(1,d-1))/(cof2(1,d)-cof2(1,d-1))) * (cof2(2,d)-cof2(2,d-1))
+              end if
+
+              mobilidade1(1,1)=coeficiente1 + coeficiente2*(rn(1)*rn(1))
+              mobilidade1(1,2)=coeficiente2*(rn(1)*rn(2))
+              mobilidade1(1,3)=coeficiente2*(rn(1)*rn(3))
+
+              mobilidade1(2,1)=coeficiente2*(rn(2)*rn(1))
+              mobilidade1(2,2)=coeficiente1 + coeficiente2*(rn(2)*rn(2))
+              mobilidade1(2,3)=coeficiente2*(rn(2)*rn(3))
+
+              mobilidade1(3,1)=coeficiente2*(rn(3)*rn(1))
+              mobilidade1(3,2)=coeficiente2*(rn(3)*rn(2))
+              mobilidade1(3,3)=coeficiente1 + coeficiente2*(rn(3)*rn(3))
+
+              hidrodinamica_aux1(j,1)=mobilidade1(1,1)*FT(q,j,1)+mobilidade1(1,2)*FT(q,j,2)+mobilidade1(1,3)*FT(q,j,3)
+              hidrodinamica_aux1(j,2)=mobilidade1(2,1)*FT(q,j,1)+mobilidade1(2,2)*FT(q,j,2)+mobilidade1(2,3)*FT(q,j,3)
+              hidrodinamica_aux1(j,3)=mobilidade1(3,1)*FT(q,j,1)+mobilidade1(3,2)*FT(q,j,2)+mobilidade1(3,3)*FT(q,j,3)
+            end if
+          end if
+
+          !****************** MAGNETIC TORQUES **************************************!
+          if (tmagper) then
+            if (modrij.gt.2.0) then
+
+              ! Interpolating the pre-calculated Green functions
+              if (diferenca_interpol1.gt.0.0) then
+                coeficiente4=cof4(2,d) + ((modrij-cof4(1,d))/(cof4(1,d+1)-cof4(1,d)))*(cof4(2,d+1)-cof4(2,d))
+                coeficiente5=cof5(2,d) + ((modrij-cof5(1,d))/(cof5(1,d+1)-cof5(1,d)))*(cof5(2,d+1)-cof5(2,d))
+              else
+                coeficiente4=cof4(2,d-1) + ((modrij-cof4(1,d-1))/(cof4(1,d)-cof4(1,d-1)))*(cof4(2,d)-cof4(2,d-1))
+                coeficiente5=cof5(2,d-1) + ((modrij-cof5(1,d-1))/(cof5(1,d)-cof5(1,d-1)))*(cof5(2,d)-cof5(2,d-1))
+              end if
+
+              ! Computing periodic torques due to magnetic interactions in the real space
+              termo5 = 0.0
+              termo2 = (Di(q,j,1)*rij(1)) + (Di(q,j,2)*rij(2)) + (Di(q,j,3)*rij(3))
+
+              if (gravidade) then
+                lambda=alpha2*6.0*pi/Pe
+              else
+                lambda=alpha2*6.0*pi
+              end if
+
+              termo1 = (Di(q,i,3)*Di(q,j,2))-(Di(q,i,2)*Di(q,j,3))
+              termo3 = (Di(q,i,2)*rij(3))-(Di(q,i,3)*rij(2))
+              auxt(j,1) = lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1)
+
+              termo1 = (Di(q,i,1)*Di(q,j,3))-(Di(q,i,3)*Di(q,j,1))
+              termo3 = (Di(q,i,3)*rij(1))-(Di(q,i,1)*rij(3))
+              auxt(j,2) = lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1)
+
+              termo1 = (Di(q,i,2)*Di(q,j,1))-(Di(q,i,1)*Di(q,j,2))
+              termo3 = (Di(q,i,1)*rij(2))-(Di(q,i,2)*rij(1))
+              auxt(j,3) = lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1)
+            end if
+          end if
+
+          !*********************************** MAGNETIC FORCES *****************************************!
+          if (fmagper) then
+            if (modrij.gt.2.0) then
+
+              ! Interpolating the pre-calculated Green functions
+              if (diferenca_interpol1.gt.0.0) then
+                coeficiente6=cof6(2,d) + ((modrij-cof6(1,d))/(cof6(1,d+1)-cof6(1,d)))*(cof6(2,d+1)-cof6(2,d))
+              else
+                coeficiente6=cof6(2,d-1) + ((modrij-cof6(1,d-1))/(cof6(1,d)-cof6(1,d-1)))*(cof6(2,d)-cof6(2,d-1))
+              end if
+
+              if (gravidade) then
+                lambda=alpha2*8.0*pi/Pe
+              else
+                lambda=alpha2*8.0*pi
+              end if
+
+              ! (di.dj)rij
+              termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(1)
+              ! (dj.rij)di
+              termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,1)
+              ! (di.rij)dj
+              termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,1)
+              ! ((di.rij)(dj.rij))rij
+              termo4=(((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3))) * ((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(1)
+
+              auxf(j,1)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
+
+              ! y
+              termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(2)
+              termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,2)
+              termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,2)
+              termo4=(((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3))) * ((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(2)
+
+              auxf(j,2)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
+
+              ! z
+              termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(3)
+              termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,3)
+              termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,3)
+              termo4=(((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3))) * ((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(3)
+
+              auxf(j,3)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
+            end if
+          end if
+
+        end do
+
+        !************************** SUMING EVERYTHING *********************************!
+
+        ! Computing the sum of the previous vectors and matrices
+        if (ligaih) then
+          hidro1(s,1)=sum(hidrodinamica_aux1(:,1))
+          hidro1(s,2)=sum(hidrodinamica_aux1(:,2))
+          hidro1(s,3)=sum(hidrodinamica_aux1(:,3))
+        end if
+
+        if (fmagper) then
+          forcareal(s,1)=sum(auxf(:,1))
+          forcareal(s,2)=sum(auxf(:,2))
+          forcareal(s,3)=sum(auxf(:,3))
+        end if
+
+        if (tmagper) then
+          torquereal(s,1)=sum(auxt(:,1))
+          torquereal(s,2)=sum(auxt(:,2))
+          torquereal(s,3)=sum(auxt(:,3))
+          auxt = 0.0
+        end if
+
+      end do
+
+      ! Computing the contributions of the real space interactions in the velocities of each particle
+      if (ligaih) then
+        U(q,i,1)=mobilidade_self(1,1)*FT(q,i,1) + sum(hidro1(:,1))
+        U(q,i,2)=mobilidade_self(2,2)*FT(q,i,2) + sum(hidro1(:,2))
+        U(q,i,3)=mobilidade_self(3,3)*FT(q,i,3) + sum(hidro1(:,3))
+      end if
+
+      hidro1=0.0
+
+      ! Computing the contributions of the real space interactions in the magnetic forces and torques acting on each particle
+      if (fmagper) then
+        FORCAS(4,q,i,1)=sum(forcareal(:,1))
+        FORCAS(4,q,i,2)=sum(forcareal(:,2))
+        FORCAS(4,q,i,3)=sum(forcareal(:,3))
+      end if
+
+      if (tmagper) then
+        TORQUES(1,q,i,1)=sum(torquereal(:,1))
+        TORQUES(1,q,i,2)=sum(torquereal(:,2))
+        TORQUES(1,q,i,3)=sum(torquereal(:,3))
+      end if
+
+      contribuicao_self(q,i)   = mobilidade_self(3,3)*FT(q,i,3)
+      contribuicao_fisico(q,i) = sum(hidro1(:,3))
+
+    end do
+  end do
+
+  !************************************* SUMS IN THE RECIPROCAL SPACE ***********************************!
+  do q=1,rea
+    do i=1,N
+      do s=1,nbr
+        do j=1,N
+
+          aux_periodico = abs(ILR(s,1)) + abs(ILR(s,2)) + abs(ILR(s,3))
+
+          if (aux_periodico.ne.0) then
+
+            rij(1)= X(q,i,1)-X(q,j,1)
+            rij(2)= X(q,i,2)-X(q,j,2)
+            rij(3)= X(q,i,3)-X(q,j,3)
+
+            ! Calculating the normalized "r" vector = r/|r|
+            modrij = sqrt(rij(1)*rij(1) + rij(2)*rij(2) + rij(3)*rij(3))
+
+            if (modrij .ne. 0.0) then
+              rn(1)=rij(1)/modrij
+              rn(2)=rij(2)/modrij
+              rn(3)=rij(3)/modrij
+            else
+              rn = 0.0
+            end if
+
+            if (modrij.ne.0.0) then
+
+              ! Computing the wave number vector based on the lattice index 
+              konda(1)=ILR(s,1)*2.0*pi/l
+              konda(2)=ILR(s,2)*2.0*pi/l
+              konda(3)=ILR(s,3)*2.0*pi/h
+
+              ! Calculating the wave number module
+              modk = sqrt(konda(1)*konda(1) + konda(2)*konda(2) + konda(3)*konda(3))
+
+              ! -------------------- CORTE NO RECÍPROCO (independente) --------------------
+              if (modk > kcut) cycle
+              ! ---------------------------------------------------------------------------
+
+              ! Normalized wave number vector
+              knormal(1)=konda(1)/modk
+              knormal(2)=konda(2)/modk
+              knormal(3)=konda(3)/modk
+
+              !********************** HYDRODYNAMIC INTERACTIONS *********************************************************!
+              if (ligaih) then
+
+                ! Interpolating the pre-calculated Green function
+                call interpola_reciproco(nbr,cof3,cof3,coeficiente3,modk,l)
+
+                ! Calculating the mobility matrix for the reciprocal space contribution
+                mobilidade2(1,1)=coeficiente3*(1.0 - knormal(1)*knormal(1))
+                mobilidade2(1,2)=coeficiente3*(-knormal(1)*knormal(2))
+                mobilidade2(1,3)=coeficiente3*(-knormal(1)*knormal(3))
+                mobilidade2(2,1)=coeficiente3*(-knormal(2)*knormal(1))
+                mobilidade2(2,2)=coeficiente3*(1.0 - knormal(2)*knormal(2))
+                mobilidade2(2,3)=coeficiente3*(- knormal(2)*knormal(3))
+                mobilidade2(3,1)=coeficiente3*(-knormal(3)*knormal(1))
+                mobilidade2(3,2)=coeficiente3*(-knormal(3)*knormal(2))
+                mobilidade2(3,3)=coeficiente3*(1.0 - knormal(3)*knormal(3))
+
+                kr  = (knormal(1)*rn(1)) + (knormal(2)*rn(2)) + (knormal(3)*rn(3))
+                kr2 = cos((konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3)))
+
+                hidrodinamica_aux2(j,1)=kr*(mobilidade2(1,1)*FT(q,j,1)+mobilidade2(1,2)*FT(q,j,2)+mobilidade2(1,3)*FT(q,j,3))
+                hidrodinamica_aux2(j,2)=kr*(mobilidade2(2,1)*FT(q,j,1)+mobilidade2(2,2)*FT(q,j,2)+mobilidade2(2,3)*FT(q,j,3))
+                hidrodinamica_aux2(j,3)=kr*(mobilidade2(3,1)*FT(q,j,1)+mobilidade2(3,2)*FT(q,j,2)+mobilidade2(3,3)*FT(q,j,3))
+              end if
+
+              !**************************** MAGNETIC TORQUES ***********************************************!
+              if (tmagper) then
+
+                kr2 = 1.0*((konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3)))
+
+                ! Interpolating the pre-calculated Green function
+                call interpola_reciproco(nbr,cof3,cof7,coeficiente7,modk,l)
+
+                ! Computing the reciprocal space contribution
+                termo2 = (Di(q,j,1)*konda(1))+(Di(q,j,2)*konda(2))+(Di(q,j,3)*konda(3))
+
+                if (gravidade) then
+                  lambda=alpha2*6.0*pi/Pe
+                else
+                  lambda=alpha2*6.0*pi
+                end if
+
+                termo1=(Di(q,i,2)*konda(3))-(Di(q,i,3)*konda(2))
+                auxt(j,1)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))
+                termo1=(Di(q,i,3)*konda(1))-(Di(q,i,1)*konda(3))
+                auxt(j,2)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))
+                termo1=(Di(q,i,1)*konda(2))-(Di(q,i,2)*konda(1))
+                auxt(j,3)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))
+              end if
+
+              !********************************* MAGNETIC FORCES **********************************************!
+              if (fmagper) then
+
+                ! Interpolating the pre-calculated Green function
+                call interpola_reciproco(nbr,cof3,cof8,coeficiente8,modk,l)
+
+                ! Computing the reciprocal space contribution
+                kr     = (konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3))
+                termo1 = (Di(q,i,1)*konda(1))+(Di(q,i,2)*konda(2))+(Di(q,i,3)*konda(3))
+                termo2 = (Di(q,j,1)*konda(1))+(Di(q,j,2)*konda(2))+(Di(q,j,3)*konda(3))
+
+                if (Pe.eq.0.0) then
+                  lambda=alpha2*8.0
+                else
+                  lambda=alpha2*8.0/Pe
+                end if
+
+                auxf(j,1)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(1)
+                auxf(j,2)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(2)
+                auxf(j,3)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(3)
+              end if
+
+            end if
+          end if
+
+        end do
+
+        ! Making the final sum for the physical and reciprocal contribution for all possible interactions
+        if (ligaih) then
+          hidro2(s,1)=sum(hidrodinamica_aux2(:,1))
+          hidro2(s,2)=sum(hidrodinamica_aux2(:,2))
+          hidro2(s,3)=sum(hidrodinamica_aux2(:,3))
+        end if
+
+        if (fmagper) then
+          forcareciproca(s,1)=sum(auxf(:,1))
+          forcareciproca(s,2)=sum(auxf(:,2))
+          forcareciproca(s,3)=sum(auxf(:,3))
+        end if
+
+        if (tmagper) then
+          torquereciproco(s,1)=sum(auxt(:,1))
+          torquereciproco(s,2)=sum(auxt(:,2))
+          torquereciproco(s,3)=sum(auxt(:,3))
+        end if
+
+      end do
+
+      if (ligaih) then
+        ! Computing the velocities of the particles, now with the reciprocal space sum contribution
+        U(q,i,1)= U(q,i,1) + sum(hidro2(:,1))
+        U(q,i,2)= U(q,i,2) + sum(hidro2(:,2))
+        U(q,i,3)= U(q,i,3) + sum(hidro2(:,3))
+        contribuicao_reciproco(q,i)=sum(hidro2(:,3))
+      end if
+
+      if (fmagper) then
+        ! Computing the magnetic forces acting on the particles, now with the reciprocal space sum contribution
+        FORCAS(4,q,i,1)=FORCAS(4,q,i,1)+sum(forcareciproca(:,1))
+        FORCAS(4,q,i,2)=FORCAS(4,q,i,2)+sum(forcareciproca(:,2))
+        FORCAS(4,q,i,3)=FORCAS(4,q,i,3)+sum(forcareciproca(:,3))
+      end if
+
+      if (tmagper) then
+        ! Computing the magnetic torques acting on the particles, now with the reciprocal space sum contribution
+        TORQUES(1,q,i,1)=TORQUES(1,q,i,1)+sum(torquereciproco(:,1))
+        TORQUES(1,q,i,2)=TORQUES(1,q,i,2)+sum(torquereciproco(:,2))
+        TORQUES(1,q,i,3)=TORQUES(1,q,i,3)+sum(torquereciproco(:,3))
+      end if
+
+    end do
+  end do
+end subroutine periodic_interactions
+
+
+
+
+
+subroutine periodic_interactions_old(k)
+
+  implicit none
+  integer, intent(in) :: k
+
   !------------------- parâmetros de corte (coerentes real/recíproco) -------------------
   ! Y controla ambos: rcut = Y/qsi e kcut = 2*qsi*Y
   real :: Y
@@ -2054,478 +2525,6 @@ subroutine periodic_interactions(k)
     end do
   end do
 
-end subroutine periodic_interactions
-
-
-
-
-
-
-
-subroutine periodic_interactions_old(k)
-implicit none
-  integer, intent(in) :: k
-  real    :: mobilidade_self(3,3), mobilidade1(3,3), mobilidade2(3,3)
-  real    :: coeficiente1, coeficiente2, coeficiente3, coeficiente4
-  real    :: coeficiente5, coeficiente6, coeficiente7, coeficiente8
-  real    :: rn(3)
-  integer :: aux_periodico
-  integer :: q, i, s, j, a, d
-  integer, parameter :: dmin = 2, dmax = 9999
-  real    :: eps
-
-  eps = max(1.0e-12, tiny(1.0))
-
-
-! We start by computing first the sums in the real space 
-! Here, nb denotes the number of physical boxes. This
-! number can be different from nbr, which denotes the
-! nubmer of reciprocal boxes. In simconfig.dat we 
-! recommend the user to set nb=125 and nbr=27. These
-! values ensure a good precision when computing the 
-! average sedimentation velocity of a suspension of
-! spheres in Creeping-flow
-
-! This loop works like this: we fix a realization and
-! a given particle and the make a sweep computing the
-! long-range interactions between this particles and
-! all the other particles in the surrounding boxes.
-! We then, extend this procedure to all real particles
-! in all the simultaneous numerical experiments.
-
-do q=1,rea
-do i=1,N
-do s=1,nb
-do j=1,N
-
-aux_periodico= abs(ILF(s,1))+abs(ILF(s,2))+abs(ILF(s,3))
-
-! Checking the distance between a particle "i"  and other particle "j" in the real boxes (physical and images)  
-
-! Calculating the "r" vector (distance)
-
-if(.not.shear)then
-rij(1)= X(q,i,1)-(X(q,j,1)+(ILF(s,1)*l))
-rij(2)= X(q,i,2)-(X(q,j,2)+(ILF(s,2)*l))
-rij(3)= X(q,i,3)-(X(q,j,3)+(ILF(s,3)*l))
-else
-rij(1)= X(q,i,1)-(X(q,j,1)+(ILF(s,1)*l))
-rij(2)= X(q,i,2)-(X(q,j,2)+((ILF(s,2)*l)+(k*ILF(s,3)*shearrate*dt)))
-rij(3)= X(q,i,3)-(X(q,j,3)+(ILF(s,3)*h))
-end if
-
-! Normalizing the "r" vector -> r/|r|
-
-modrij=(rij(1)**2.0 +rij(2)**2.0 + rij(3)**2.0)**0.5
-
-if(modrij.ge.eps) then
-rn(1)=rij(1)/modrij
-rn(2)=rij(2)/modrij
-rn(3)=rij(3)/modrij
-else
-rn=0.0
-end if
-
-d = 0
-if (modrij >= 2.0 .and. modrij <= 4.0*l) then
-d = 1 + int(9999.0*(modrij-2.0)/((3.0**0.5)*l*(nb**(1.0/3.0))))
-    if (d < dmin) d = dmin
-    if (d > dmax) d = dmax
-    diferenca_interpol1 = (modrij - cof1(1,d))
-end if
-
-!************ SUMS IN THE PHYSICAL SPACE IN THE REAL BOX (WHERE THE REAL PARTICLES ARE) AND "IMAGE" BOXES***********!
-
-
-!******************************* HYDRODYNAMIC INTERACTIONS *********************************************************!
-
-! Building the self-mobility matrix
-
-if (aux_periodico == 0 .and. i == j) then
-      if (ligaih) then
-         do a = 1, 3
-                mobilidade_self(a,a) = 1.0 - (6.0*(pi**(-0.5))*qsi) + ((40.0/3.0)*(pi**(-0.5))*(qsi**3.0))
-         end do
-      end if
-    cycle
-end if
-
-! Building the called mobility matrix 1 (lattice sum in the physical space)
-
-if(ligaih) then
-if(modrij > 2.0 .and. modrij <= 4.0*l)then
-
-! Interpolating the pre-calculated Green functions
-
-if(diferenca_interpol1.gt.0.0)then
-coeficiente1=cof1(2,d) + ((modrij-cof1(1,d))/(cof1(1,d+1)-cof1(1,d)))*(cof1(2,d+1)-cof1(2,d))
-coeficiente2=cof2(2,d) + ((modrij-cof2(1,d))/(cof2(1,d+1)-cof2(1,d)))*(cof2(2,d+1)-cof2(2,d))
-else
-coeficiente1=cof1(2,d-1) + ((modrij-cof1(1,d-1))/(cof1(1,d)-cof1(1,d-1)))*(cof1(2,d)-cof1(2,d-1))
-coeficiente2=cof2(2,d-1) + ((modrij-cof2(1,d-1))/(cof2(1,d)-cof2(1,d-1)))*(cof2(2,d)-cof2(2,d-1))
-end if
-
-mobilidade1(1,1)=coeficiente1 + coeficiente2*(rn(1)*rn(1))
-mobilidade1(1,2)=coeficiente2*(rn(1)*rn(2))
-mobilidade1(1,3)=coeficiente2*(rn(1)*rn(3))
-
-mobilidade1(2,1)=coeficiente2*(rn(2)*rn(1))
-mobilidade1(2,2)=coeficiente1 + coeficiente2*(rn(2)*rn(2)) 
-mobilidade1(2,3)=coeficiente2*(rn(2)*rn(3))
- 
-mobilidade1(3,1)=coeficiente2*(rn(3)*rn(1))
-mobilidade1(3,2)=coeficiente2*(rn(3)*rn(2))
-mobilidade1(3,3)=coeficiente1 +coeficiente2*(rn(3)*rn(3))
-
-hidrodinamica_aux1(j,1)=mobilidade1(1,1)*FT(q,j,1)+mobilidade1(1,2)*FT(q,j,2)+mobilidade1(1,3)*FT(q,j,3)
-hidrodinamica_aux1(j,2)=mobilidade1(2,1)*FT(q,j,1)+mobilidade1(2,2)*FT(q,j,2)+mobilidade1(2,3)*FT(q,j,3)
-hidrodinamica_aux1(j,3)=mobilidade1(3,1)*FT(q,j,1)+mobilidade1(3,2)*FT(q,j,2)+mobilidade1(3,3)*FT(q,j,3)
-end if ! ending the "if" of the condition (modrij.gt.2.0)
-end if ! ending the "if" of the condition (ligaih)
-
-!****************** MAGNETIC TORQUES **************************************!
-
-if(tmagper) then
-if(modrij > 2.0)then
-
-! Interpolating the pre-calculated Green functions
-
-if(diferenca_interpol1.gt.0.0)then
-coeficiente4=cof4(2,d) + ((modrij-cof4(1,d))/(cof4(1,d+1)-cof4(1,d)))*(cof4(2,d+1)-cof4(2,d))
-coeficiente5=cof5(2,d) + ((modrij-cof5(1,d))/(cof5(1,d+1)-cof5(1,d)))*(cof5(2,d+1)-cof5(2,d))
-else
-coeficiente4=cof4(2,d-1) + ((modrij-cof4(1,d-1))/(cof4(1,d)-cof4(1,d-1)))*(cof4(2,d)-cof4(2,d-1))
-coeficiente5=cof5(2,d-1) + ((modrij-cof5(1,d-1))/(cof5(1,d)-cof5(1,d-1)))*(cof5(2,d)-cof5(2,d-1))
-end if
-
-! Computing periodic torques due to magnetic interactions in the real space
-!eps=10.0
-
-!if(aux_periodico.eq.0.0)then
-!termo5= 4.0*pi/((2.0+eps)*(l**3.0)) ! Surface term (only present in the physical lattice)
-!else
-!termo5=0.0
-!end if
-
-termo5=0.0
-
-termo2=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))
-
-if(gravidade)then
-lambda=alpha2*6.0*pi/Pe
-else
-lambda=alpha2*6.0*pi
-end if
-
-termo1=(Di(q,i,3)*Di(q,j,2))-(Di(q,i,2)*Di(q,j,3))
-termo3=(Di(q,i,2)*rij(3))-(Di(q,i,3)*rij(2))
-auxt(j,1)=lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1)  
-
-termo1=(Di(q,i,1)*Di(q,j,3))-(Di(q,i,3)*Di(q,j,1))
-termo3=(Di(q,i,3)*rij(1))-(Di(q,i,1)*rij(3))
-auxt(j,2)=lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1) 
-
-termo1=(Di(q,i,2)*Di(q,j,1))-(Di(q,i,1)*Di(q,j,2))
-termo3=(Di(q,i,1)*rij(2))-(Di(q,i,2)*rij(1))
-auxt(j,3)=lambda*((termo1*coeficiente4)+(termo2*termo3*coeficiente5) + termo5*termo1) 
-
-end if ! ending the "if" of the condition (modrij.gt.2.0)
-end if ! ending the "if" of the condition (tmagper)
-
-!*********************************** MAGNETIC FORCES *****************************************!
-if(fmagper) then
-if(modrij > 2.0)then
-
-! Interpolating the pre-calculated Green functions
-
-if(diferenca_interpol1.gt.0.0)then
-coeficiente6=cof6(2,d) + ((modrij-cof6(1,d))/(cof6(1,d+1)-cof6(1,d)))*(cof6(2,d+1)-cof6(2,d))
-else
-coeficiente6=cof6(2,d-1) + ((modrij-cof6(1,d-1))/(cof6(1,d)-cof6(1,d-1)))*(cof6(2,d)-cof6(2,d-1))
-end if
-
-! Computing periodic forces due to magnetic interactions in the real space
-
-if(gravidade)then
-lambda=alpha2*8.0*pi/Pe
-else
-lambda=alpha2*8.0*pi
-end if
-
-! (di.dj)rij
-termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(1)
-! (dj.rij)di
-termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,1)
-! (di.rij)dj
-termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,1)
-!((di.rij)(dij.rij))rij
-termo4=(((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))   &
-+(Di(q,i,3)*rij(3)))*((Di(q,j,1)*rij(1))   &
-+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(1)
-
-auxf(j,1)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
-
-! (di.dj)rij
-termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(2)
-! (dj.rij)di
-termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,2)
-! (di.rij)dj
-termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,2)
-!((di.rij)(dij.rij))rij
-termo4=(((Di(1,i,1)*rij(1))+(Di(1,i,2)*rij(2))   &
-+(Di(1,i,3)*rij(3)))*((Di(q,j,1)*rij(1))   &
-+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(2)
-
-auxf(j,2)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
-
-! (di.dj)rij
-termo1=((Di(q,i,1)*Di(q,j,1))+(Di(q,i,2)*Di(q,j,2))+(Di(q,i,3)*Di(q,j,3)))*rij(3)
-! (dj.rij)di
-termo3=((Di(q,j,1)*rij(1))+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3)))*Di(q,i,3)
-! (di.rij)dj
-termo2=((Di(q,i,1)*rij(1))+(Di(q,i,2)*rij(2))+(Di(q,i,3)*rij(3)))*Di(q,j,3)
-!((di.rij)(dij.rij))rij
-termo4=(((Di(1,i,1)*rij(1))+(Di(1,i,2)*rij(2))   &
-+(Di(1,i,3)*rij(3)))*((Di(q,j,1)*rij(1))   &
-+(Di(q,j,2)*rij(2))+(Di(q,j,3)*rij(3))))*rij(3)
-
-auxf(j,3)=lambda*(((termo1+termo2+termo3)*coeficiente5) - termo4*coeficiente6)
-end if ! ending the "if" of the condition  (modrij.gt.2.0) 
-end if ! ending the "if" of the condition (fmagper)
-
-end do
-!************************** SUMING EVERYTHING *********************************!
-
-! Computing the sum of the previous vectors and matrices
-
-if(ligaih) then
-hidro1(s,1)=sum(hidrodinamica_aux1(:,1))
-hidro1(s,2)=sum(hidrodinamica_aux1(:,2))
-hidro1(s,3)=sum(hidrodinamica_aux1(:,3))
-end if
-
-if(fmagper) then
-forcareal(s,1)=sum(auxf(:,1))
-forcareal(s,2)=sum(auxf(:,2))
-forcareal(s,3)=sum(auxf(:,3))
-end if
-
-if(tmagper) then
-torquereal(s,1)=sum(auxt(:,1))
-torquereal(s,2)=sum(auxt(:,2))
-torquereal(s,3)=sum(auxt(:,3))
-auxt=0.0
-end if
-
-end do
-
-! Computing the contributions of the real space interactions in the velocities of each particle
-
-if(ligaih) then
-U(q,i,1)=mobilidade_self(1,1)*FT(q,i,1) + sum(hidro1(:,1))
-U(q,i,2)=mobilidade_self(2,2)*FT(q,i,2) + sum(hidro1(:,2))
-U(q,i,3)=mobilidade_self(3,3)*FT(q,i,3) + sum(hidro1(:,3))
-end if
-
-hidro1=0.0
-
-! Computing the contributions of the real space interactions in the magnetic forces and torques acting on each particle
-
-if(fmagper) then
-FORCAS(4,q,i,1)=sum(forcareal(:,1))
-FORCAS(4,q,i,2)=sum(forcareal(:,2))
-FORCAS(4,q,i,3)=sum(forcareal(:,3))
-end if
-
-if(tmagper) then
-TORQUES(1,q,i,1)=sum(torquereal(:,1))
-TORQUES(1,q,i,2)=sum(torquereal(:,2))
-TORQUES(1,q,i,3)=sum(torquereal(:,3))
-end if
-
-contribuicao_self(q,i)=mobilidade_self(3,3)*FT(q,i,3)
-contribuicao_fisico(q,i)=sum(hidro1(:,3))
-
-end do
-end do
-
-!************************************* SUMS IN THE RECIPROCAL SPACE ***********************************!
-do q=1,rea
-do i=1,N
-do s=1,nbr
-do j=1,N
-
-aux_periodico= abs(ILR(s,1))+abs(ILR(s,2))+abs(ILR(s,3))
-
-if(aux_periodico.ne.0) then
-
-rij(1)= X(q,i,1)-X(q,j,1)
-rij(2)= X(q,i,2)-X(q,j,2)
-rij(3)= X(q,i,3)-X(q,j,3)
-
-! Calculating the normalized "r" vector = r/|r|
-
-modrij=(rij(1)**2.0 +rij(2)**2.0 + rij(3)**2.0)**0.5
-
-
-if(modrij.ne.0.0) then
-rn(1)=rij(1)/modrij
-rn(2)=rij(2)/modrij
-rn(3)=rij(3)/modrij
-else
-rn(1)=0.0
-rn(2)=0.0
-rn(3)=0.0
-end if
-
-if(modrij.ne.0) then
-
-! Computing the wave number vector based on the lattice index 
-
-konda(1)=ILR(s,1)*2.0*pi/l
-konda(2)=ILR(s,2)*2.0*pi/l
-konda(3)=ILR(s,3)*2.0*pi/h
-
-! Calculating the wave number module
-
-modk=((konda(1)**2.0)+(konda(2)**2.0)+(konda(3)**2.0))**0.5
-
-! Normalized wave number vector
-
-knormal(1)=konda(1)/modk
-knormal(2)=konda(2)/modk
-knormal(3)=konda(3)/modk
-
-!********************** HYDRODYNAMIC INTERACTIONS *********************************************************!
-
-if(ligaih) then
-
-! Interpolating the pre-calculated Green function
-
- call interpola_reciproco(nbr,cof3,cof3,coeficiente3,modk,l)
-
-! Calculating the mobility matrix for the reciprocal space contribution
-
-mobilidade2(1,1)=coeficiente3*(1.0 - knormal(1)*knormal(1))
-mobilidade2(1,2)=coeficiente3*(-knormal(1)*knormal(2))
-mobilidade2(1,3)=coeficiente3*(-knormal(1)*knormal(3))
-mobilidade2(2,1)=coeficiente3*(-knormal(2)*knormal(1))
-mobilidade2(2,2)=coeficiente3*(1.0 - knormal(2)*knormal(2))
-mobilidade2(2,3)=coeficiente3*(- knormal(2)*knormal(3))
-mobilidade2(3,1)=coeficiente3*(-knormal(3)*knormal(1))
-mobilidade2(3,2)=coeficiente3*(-knormal(3)*knormal(2))
-mobilidade2(3,3)=coeficiente3*(1.0 - knormal(3)*knormal(3))
-kr=(knormal(1)*rn(1))+(knormal(2)*rn(2))+(knormal(3)*rn(3))
-
-kr2=cos((konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3)))
-
-hidrodinamica_aux2(j,1)=kr*(mobilidade2(1,1)*FT(q,j,1)+mobilidade2(1,2)*FT(q,j,2)+mobilidade2(1,3)*FT(q,j,3))
-hidrodinamica_aux2(j,2)=kr*(mobilidade2(2,1)*FT(q,j,1)+mobilidade2(2,2)*FT(q,j,2)+mobilidade2(2,3)*FT(q,j,3))
-hidrodinamica_aux2(j,3)=kr*(mobilidade2(3,1)*FT(q,j,1)+mobilidade2(3,2)*FT(q,j,2)+mobilidade2(3,3)*FT(q,j,3))
-end if !closing the "if" of the condition (ligaih)
-
-!**************************** MAGNETIC TORQUES ***********************************************!
-
-if(tmagper) then
-
-kr2=1.0*((konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3)))
-
-! Interpolating the pre-calculated Green function
-
- call interpola_reciproco(nbr,cof3,cof7,coeficiente7,modk,l)
-
-! Computing the reciprocal space contribution
-termo2=((Di(q,j,1)*konda(1))+(Di(q,j,2)*konda(2))+(Di(q,j,3)*konda(3)))
-
-if(gravidade)then
-lambda=alpha2*6.0*pi/Pe
-else
-lambda=alpha2*6.0*pi
-end if
-
-termo1=(Di(q,i,2)*konda(3))-(Di(q,i,3)*konda(2))
-auxt(j,1)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))   
-termo1=(Di(q,i,3)*konda(1))-(Di(q,i,1)*konda(3))
-auxt(j,2)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))   
-termo1=(Di(q,i,1)*konda(2))-(Di(q,i,2)*konda(1))
-auxt(j,3)=lambda*(coeficiente7*(termo1*termo2)*cos(kr2))  
-end if !closing the "if" of the condition (tmagper)
-
-!********************************* MAGNETIC FORCES **********************************************!
-if(fmagper) then
-
-! Interpolating the pre-calculated Green function
-
- call interpola_reciproco(nbr,cof3,cof8,coeficiente8,modk,l)
-
-! Computing the reciprocal space contribution
-
-kr=(konda(1)*rij(1))+(konda(2)*rij(2))+(konda(3)*rij(3))
-termo1=((Di(q,i,1)*konda(1))+(Di(q,i,2)*konda(2))+(Di(q,i,3)*konda(3)))
-termo2=((Di(q,j,1)*konda(1))+(Di(q,j,2)*konda(2))+(Di(q,j,3)*konda(3)))
-
-if(Pe.eq.0.0)then
-lambda=alpha2*8.0
-else
-lambda=alpha2*8.0/Pe
-end if
-auxf(j,1)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(1)
-auxf(j,2)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(2) 
-auxf(j,3)=lambda*(coeficiente8*termo1*termo2*sin(2.0*pi*kr/l))*konda(3)   
-end if !closing the "if" of the condition (fmagper)
-
-end if !closing the "if" of the condition (modrij.ne.0)
-end if !closing the "if" of the condition (auxperiodico.ne.0)
-
-end do
-
-! Making the final sum for the physical and reciprocal contribution for all possible interactions
-
-if(ligaih) then
-hidro2(s,1)=sum(hidrodinamica_aux2(:,1))
-hidro2(s,2)=sum(hidrodinamica_aux2(:,2))
-hidro2(s,3)=sum(hidrodinamica_aux2(:,3))
-end if
-
-if(fmagper) then
-forcareciproca(s,1)=sum(auxf(:,1))
-forcareciproca(s,2)=sum(auxf(:,2))
-forcareciproca(s,3)=sum(auxf(:,3))
-end if
-
-if(tmagper) then
-torquereciproco(s,1)=sum(auxt(:,1))
-torquereciproco(s,2)=sum(auxt(:,2))
-torquereciproco(s,3)=sum(auxt(:,3))
-end if
-
-end do
-
-if(ligaih)then
-! Computing the velocities of the particles, now with the reciprocal space sum contribution
-U(q,i,1)= U(q,i,1) + sum(hidro2(:,1))
-U(q,i,2)= U(q,i,2) + sum(hidro2(:,2))
-U(q,i,3)= U(q,i,3) + sum(hidro2(:,3))
-contribuicao_reciproco(q,i)=sum(hidro2(:,3))
-end if
-
-if(fmagper)then
-! Computing the magnetic forces acting on the particles, now with the reciprocal space sum contribution
-FORCAS(4,q,i,1)=FORCAS(4,q,i,1)+sum(forcareciproca(:,1))
-FORCAS(4,q,i,2)=FORCAS(4,q,i,2)+sum(forcareciproca(:,2))
-FORCAS(4,q,i,3)=FORCAS(4,q,i,3)+sum(forcareciproca(:,3))
-end if
-
-if(tmagper)then
-! Computing the magnetic torques acting on the particles, now with the reciprocal space sum contribution
-TORQUES(1,q,i,1)=TORQUES(1,q,i,1)+sum(torquereciproco(:,1))
-TORQUES(1,q,i,2)=TORQUES(1,q,i,2)+sum(torquereciproco(:,2))
-TORQUES(1,q,i,3)=TORQUES(1,q,i,3)+sum(torquereciproco(:,3))
-end if
-
-end do
-end do
-
 end subroutine periodic_interactions_old
 
 !*************************************************!
@@ -2543,6 +2542,72 @@ end subroutine periodic_interactions_old
 !*************************************************!
 
 subroutine interpola_reciproco(a,b,c,d,e,f)
+  implicit none
+  ! a = number of reciprocal lattices (e.g., 27 or 125)
+  ! b = cof3   (grade de k de referência)   [2 x 10000]
+  ! c = cofx   (tabela a interpolar)        [2 x 10000]
+  ! d = coeficientex (saída: valor interpolado)
+  ! e = |k| (modk)
+  ! f = l (comprimento da caixa)
+
+  integer, intent(in)  :: a
+  real   , intent(in)  :: b(2,10000), c(2,10000), e, f
+  real   , intent(out) :: d
+
+  integer :: nside, g
+  real    :: kmin, kmax, t, diferenca_interpol2
+  real    :: two_pi_over_l, root3
+
+  two_pi_over_l = 2.0*pi / f
+  root3         = sqrt(3.0)
+
+  ! nside = a^(1/3) arredondado: esperamos 3 (27) ou 5 (125)
+  nside = nint(a**(1.0/3.0))
+
+  ! Definição do intervalo tabulado de |k| para a malha recíproca usada
+  select case (nside)
+  case (5)      ! 125 = 5^3
+    kmin = two_pi_over_l                                ! 1ª casca: 1*2π/L
+    kmax = (4.0*two_pi_over_l)*root3                    ! casca máxima ~ 4√3 * 2π/L
+  case (3)      ! 27 = 3^3
+    kmin = two_pi_over_l
+    kmax = (2.0*two_pi_over_l)*root3
+  case default
+    ! fallback conservador (evita divisão por zero e mantém funcional)
+    kmin = two_pi_over_l
+    kmax = (real(nside-1)*two_pi_over_l)*root3
+    if (kmax <= kmin) kmax = kmin + two_pi_over_l
+  end select
+
+  ! Parametrização no intervalo [0,1] com clamp para robustez
+  if (e <= kmin) then
+    t = 0.0
+  else if (e >= kmax) then
+    t = 1.0
+  else
+    t = (e - kmin) / (kmax - kmin)
+  end if
+
+  ! Escolha de índice garantindo que usaremos (g-1,g) ou (g,g+1) válidos:
+  ! Aqui geramos g em [2,9999] para sempre termos g-1 >= 1 e g+1 <= 10000.
+  g = 2 + int( t * 9997.0 )
+  if (g < 2)     g = 2
+  if (g > 9999)  g = 9999
+
+  diferenca_interpol2 = e - b(1,g)
+
+  if (diferenca_interpol2 >= 0.0) then
+    ! interpola entre g e g+1
+    d = c(2,g) + ((e - c(1,g)) / (c(1,g+1) - c(1,g))) * (c(2,g+1) - c(2,g))
+  else
+    ! interpola entre g-1 e g
+    d = c(2,g-1) + ((e - c(1,g-1)) / (c(1,g) - c(1,g-1))) * (c(2,g) - c(2,g-1))
+  end if
+
+end subroutine interpola_reciproco
+
+
+subroutine interpola_reciproco_old(a,b,c,d,e,f)
   implicit none
 
 ! a = number of reciprocal lattices
@@ -2575,7 +2640,7 @@ subroutine interpola_reciproco(a,b,c,d,e,f)
     d = c(2,g-1) + ((e-c(1,g-1))/(c(1,g)-c(1,g-1)))*(c(2,g)-c(2,g-1))
   end if
 
-end subroutine interpola_reciproco
+end subroutine interpola_reciproco_old
 
 
 !*************************************************!

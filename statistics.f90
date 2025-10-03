@@ -306,8 +306,8 @@ subroutine statistics
 
   write(*,*) 'Generation of output files - OK'
   
-  UMEDIAFINAL = sum(vmedia(:,3))/npast
-  DESVFINAL = sum(errovmedia(:,3))/npast
+  UMEDIAFINAL = sum(vmedia(:,3))/(npast-1.0)
+  DESVFINAL = sum(errovmedia(:,3))/(npast-1.0)
   write(*,*) 'Final average velocity =', UMEDIAFINAL, '+/-', DESVFINAL
 
   ! Deallocating variables 
