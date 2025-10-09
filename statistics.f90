@@ -1,7 +1,7 @@
 !*************************************************!
 !                      SIMMSUS                    !
 ! SUBROUTINE: statistics                          !
-! Last update: 13/09/2025                         !
+! Last update: 07/10/2025                         !
 !*************************************************!
 
 subroutine statistics
@@ -38,6 +38,25 @@ subroutine statistics
   allocate(variancia(npast, rea, 6))
   allocate(var(npast, 6))
   allocate(errovar(npast, 6))
+
+
+  U            = 0.0
+  V            = 0.0
+  flut         = 0.0
+  velmedia     = 0.0
+  vmedia       = 0.0
+  errovmedia   = 0.0
+  auxcor       = 0.0
+  auxiliarcor  = 0.0
+  errocor      = 0.0
+  funcaor      = 0.0
+  dif          = 0.0
+  aux_erro_vel = 0.0
+  aux_erro_var = 0.0
+  variancia    = 0.0
+  var          = 0.0
+  errovar      = 0.0
+
 
   ! Defining some formats
 509  FORMAT(F30.4,F30.4,F30.4)
@@ -306,8 +325,14 @@ subroutine statistics
 
   write(*,*) 'Generation of output files - OK'
   
-  UMEDIAFINAL = sum(vmedia(:,3))/(npast-1.0)
-  DESVFINAL = sum(errovmedia(:,3))/(npast-1.0)
+  ! --- Média final usando apenas as linhas preenchidas (1:npast-1) ---
+  if (npast > 1) then
+    UMEDIAFINAL = sum( vmedia(1:npast-1, 3) ) / real(npast - 1)
+    DESVFINAL   = sum( errovmedia(1:npast-1, 3) ) / real(npast - 1)
+  else
+    UMEDIAFINAL = 0.0
+    DESVFINAL   = 0.0
+  end if
   write(*,*) 'Final average velocity =', UMEDIAFINAL, '+/-', DESVFINAL
 
   ! Deallocating variables 
