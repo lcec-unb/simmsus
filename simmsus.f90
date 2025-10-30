@@ -1,12 +1,12 @@
 program simmsus
 use variables
+use subroutines
 
 implicit none
   real    :: ti, tf, tpros
 
-
-print *,'*****************************************'
-print *,'*                                       *'
+  
+print *,"*****************************************"
 print *,'*               SIMMSUS                 *'
 print *,'*  SIMULATION OF MAGNETIC SUSPENSIONS   *'
 print *,'*_______________________________________*'
@@ -19,22 +19,24 @@ print *,'*_______________________________________*'
 print *,'*                                       *'
 print *,'*       LAST UPDATE: 12/09/2025         *'
 print *,'*                                       *'
-print *,'*****************************************'
+print *,"*****************************************"
 print *,''
-print *,'*****************************************'
+print *,"*****************************************"
 print *,'*                                       *'
 print *,'*        Numerical simulation of        *'
 print *,'* magnetic suspensions of hard spheres  *'  
-print *,'*_______________________________________*'
 print *,'*                                       *'
 print *,'*    Langevin and Stokesian Dynamics    *'
 print *,'*                                       *'
-print *,'*****************************************'
+print *,"*****************************************"
 print *,''
 
 ! Collecting simulation data
  call input
  
+! Informing to the user the main timescale based on the input data
+call print_time_scale(ligaih, browniano, shear, gravidade, inertia)
+
 ! Start to count the simulation time
  call cpu_time(ti)
  
