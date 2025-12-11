@@ -948,6 +948,53 @@ case "$choice8" in
   *) : ;;  # nada selecionado / sem campo externo
 esac
 
+# ============================================================
+# SANITIZAÇÃO FINAL – GARANTE VALORES UNITÁRIOS EM VARIÁVEIS 
+# NÃO UTILIZADAS NO FLUXO PARA EVITAR NAN NO SIMMSUS
+# ============================================================
+
+# Todas as variáveis numéricas que podem ficar vazias recebem valor 1
+sanitize_num() {
+    local v="$1"
+    # se vazio, nulo ou apenas espaço → retorna 1
+    if [[ -z "${v// }" ]]; then
+        echo "1"
+    else
+        echo "$v"
+    fi
+}
+
+# Todas as variáveis relevantes passam por sanitize_num
+lambda=$(sanitize_num "$lambda")
+pecletnumber=$(sanitize_num "$pecletnumber")
+stokesnumber=$(sanitize_num "$stokesnumber")
+shearamplitude=$(sanitize_num "$shearamplitude")
+shearfrequency=$(sanitize_num "$shearfrequency")
+
+alpha=$(sanitize_num "$alpha")
+omega_field=$(sanitize_num "$omega_field")
+omega_field2=$(sanitize_num "$omega_field2")
+c1_duffing=$(sanitize_num "$c1_duffing")
+c2_duffing=$(sanitize_num "$c2_duffing")
+c3_duffing=$(sanitize_num "$c3_duffing")
+c4_duffing=$(sanitize_num "$c4_duffing")
+max_omega=$(sanitize_num "$max_omega")
+numberintdyn=$(sanitize_num "$numberintdyn")
+
+percentnonmagpart=$(sanitize_num "$percentnonmagpart")
+
+# Quantidades e parâmetros numéricos
+number_particles=$(sanitize_num "$number_particles")
+number_rea=$(sanitize_num "$number_rea")
+sim_time=$(sanitize_num "$sim_time")
+time_step=$(sanitize_num "$time_step")
+write_interval=$(sanitize_num "$write_interval")
+phi=$(sanitize_num "$phi")
+aspect_ratio=$(sanitize_num "$aspect_ratio")
+
+# Parâmetros físicos derivados
+continuefrom=$(sanitize_num "$continuefrom")
+
 
 # ==============================
 # ========== WRITER ============
