@@ -92,13 +92,20 @@ for ((i=0; i<NCASE; i++)); do
   cp -f "$CFG" "$CASEDIR/simconfig.dat"
 
   # Substitui apenas a parte após os dois pontos, preservando a chave
-  awk -v key="$KEY" -v val="$VALSCI" '
-    index($0, key)==1 {
-      print key " " val
-      next
+ awk -v key="$KEY" -v val="$VALSCI" '
+    {
+      lead = $0
+      sub(/[^ \t].*$/, "", lead)   # prefixo de espaços
+      line = $0
+      sub(/^[ \t]+/, "", line)     # remove indentação para comparar
+      if (index(line, key) == 1) {
+        print lead key " " val
+        next
+      }
+      print
     }
-    { print }
   ' "$CASEDIR/simconfig.dat" > "$CASEDIR/simconfig.dat.tmp" && mv "$CASEDIR/simconfig.dat.tmp" "$CASEDIR/simconfig.dat"
+
 
   # Execução desacoplada
   (
