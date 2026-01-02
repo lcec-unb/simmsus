@@ -14,7 +14,11 @@ subroutine statistics
   integer :: ncor
   real    :: UMEDIAFINAL
   real    :: DESVFINAL
-
+  
+  ! SAR avaliation variables (for MHT only)
+  real(8) :: Ecycle_mean, Ecycle_std, SAR_nd
+  integer :: nCyclesUsed
+  
   write(*,*) 'Initializing statistics module...'
   write(*,*) ''
 
@@ -334,6 +338,14 @@ subroutine statistics
     DESVFINAL   = 0.0
   end if
   write(*,*) 'Final average velocity =', UMEDIAFINAL, '+/-', DESVFINAL
+
+!call compute_sar_from_file(rotating, oscilacampo, externo, dble(freqcampo), &
+!                           Ecycle_mean, Ecycle_std, SAR_nd, nCyclesUsed)
+! Writting SAR data in file:
+!open(77, file='sar.plt', status='unknown')
+!write(77,'(A)') '# Ecycle_mean   Ecycle_std   SAR_nd   nCyclesUsed'
+!write(77,'(3E20.10,1x,I6)') Ecycle_mean, Ecycle_std, SAR_nd, nCyclesUsed
+!close(77)
 
   ! Deallocating variables 
   write(*,*) ''

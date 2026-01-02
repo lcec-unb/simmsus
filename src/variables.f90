@@ -35,6 +35,9 @@ real cof5(2,10000), cof6(2,10000)
 real cof7(2,10000), cof8(2,10000)
 real torquereal(125,3),torquereciproco(27,3)
 real forcareal(125,3),forcareciproca(27,3)
+real Smean , Sstd, ndir(3)
+real :: nH
+
 
 ! REAL (ALLOCATABLES)
 real, allocatable :: gpvetor(:)
@@ -87,6 +90,7 @@ real, allocatable :: hidrodinamica_aux2(:,:)
 real, allocatable :: magtempo(:,:)
 real, allocatable :: beta(:,:)
 real, allocatable :: difusaoaux(:,:)
+real, allocatable :: S_rea(:)
 
 ! LOGICAL
 logical beating,posicao,fator,velocidade,estatistica, dipolo_ordenado

@@ -14,7 +14,7 @@ subroutine main
   integer :: i, j, q, k                   
   integer :: nsplit                    
   real    :: erromag                   
-
+  real    :: applied_field(3)
   ! Pre-calibrated numerical variables
   nb        = 125         ! number of phiscal cells for periodic interactions
   nbr       = 27          ! number of reciprocal cells for periodic interactions
@@ -38,7 +38,7 @@ subroutine main
 
   ! Defining number formats for the output files
 1012 format(E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2)
-2024 format(E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2)
+2024 format(E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2,3x,E11.4e2)
 
   ! Cleaning some important variables
   X  = 0.0
@@ -268,11 +268,22 @@ subroutine main
         if (externo) then
           if (rotating) then
             call rotating_field(alpha, freqcampo*k*dt)
+            
+            applied_field(1)= 0.0
+            applied_field(2)= sin(freqcampo*k*dt)
+            applied_field(3)= cos(freqcampo*k*dt)
+
           else
             if (oscilacampo) then
               call torque_externo(alpha*campo(k))
+            applied_field(1)= 0.0
+            applied_field(2)= 0.0
+            applied_field(3)= campo(k)
             else
               call torque_externo(alpha)
+            applied_field(1)= 0.0
+            applied_field(2)= 0.0
+            applied_field(3)= 1.0
             end if
           end if
         end if
@@ -369,6 +380,13 @@ subroutine main
         end if
       end do
 
+      ! Nematic order calculation
+
+      call nematic_order(rea, N, Di, applied_field, Smean, Sstd, ndir, nH)
+
+      write(12*rea,2024) k*dt, Smean, Sstd, ndir(1), ndir(2), ndir(3), nH
+      
+
       ! Magnetization calculation
       if (grafmag) then
         call media_dipolo(Di, N, rea, magtempo(1,k), 1)
@@ -383,16 +401,7 @@ subroutine main
         end do
         erromag = ((1.0/(N*rea)) * sum(flutmag))**0.5
 
-        ! Magnetization derivatives
-        if (k .gt. 2) then
-          derivada1 = (magtempo(1,k) - magtempo(1,k-1))/dt
-          derivada2 = (magtempo(2,k) - magtempo(2,k-1))/dt
-          derivada3 = (magtempo(3,k) - magtempo(3,k-1))/dt
-        end if
-
-        write(5*rea,2024) campo(k), y(k), magtempo(1,k), magtempo(2,k), magtempo(3,k), &
-                           derivada1, derivada2, derivada3, k*dt
-
+        write(5*rea,2024) applied_field(1), applied_field(2), applied_field(3), magtempo(1,k), magtempo(2,k), magtempo(3,k), k*dt
         if (bifurcation) then
           if (k .gt. 2) then
             contfreqinteiro1 = ((k-1)*dt)/intervalo
@@ -401,8 +410,7 @@ subroutine main
           if (contfreqinteiro1 .ne. contfreqinteiro2) then
             multiplofreq = multiplofreq + 1
           end if
-          write(400*rea + multiplofreq + 1, 2024) campo(k), y(k), magtempo(1,k), magtempo(2,k), &
-                                                   magtempo(3,k), derivada1, derivada2, derivada3, k*dt
+          write(400*rea + multiplofreq + 1, 2024) applied_field(1), applied_field(2), applied_field(3), magtempo(1,k), magtempo(2,k), magtempo(3,k), k*dt
         end if
       end if
 

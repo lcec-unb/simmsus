@@ -131,6 +131,9 @@ subroutine allocatevariables
   if (allocated(y)) deallocate(y, stat=istat)
   allocate(y(npast), stat=istat); if (istat/=0) goto 900
 
+  if (allocated(S_rea)) deallocate(S_rea, stat=istat)
+  allocate(S_rea(rea), stat=istat); if (istat/=0) goto 900
+  
   return
 
 900 continue
@@ -139,9 +142,9 @@ subroutine allocatevariables
 end subroutine allocatevariables
 
 !*************************************************!
-! 		     SIMMSUS			  ! 
-!SUBROUTINE: particle_distribution		  !					         
-!Last update: 16/07/2023			  !
+! 		     SIMMSUS			                          ! 
+!SUBROUTINE: particle_distribution		            !					         
+!Last update: 16/07/2023			                    !
 !*************************************************!
 
 subroutine particle_distribution
@@ -177,9 +180,9 @@ end do
 end subroutine particle_distribution
 
 !*************************************************!
-! 		     SIMMSUS			  ! 
-!SUBROUTINE: box_size				  !					         
-!Last update: 16/07/2023			  !
+! 		     SIMMSUS			                          ! 
+!SUBROUTINE: box_size				                      !					         
+!Last update: 16/07/2023			                    !
 !*************************************************!
 
 subroutine box_size
@@ -200,14 +203,14 @@ end if
 end subroutine box_size
 
 !*************************************************!
-! 		     SIMMSUS			  ! 
-!SUBROUTINE: gera_arquivos			  !					         
-!Last update: 16/07/2023			  !
+! 		     SIMMSUS			                          ! 
+!SUBROUTINE: gera_arquivos			                  !					         
+!Last update: 16/07/2023			                    !
 !*************************************************!
 
 !*************************************************!
 ! Subroutine responsible for creating all the fi- !
-! les used in the simulation 			  !
+! les used in the simulation 			                !
 !*************************************************!
 subroutine gera_arquivos(a,b,c)
 implicit none
@@ -240,7 +243,7 @@ if(bifurcation.or.bifshear) then
 do i=1,nfreq
 write(rea_char, '(I3)') i
 open (400*c+i,file='magnetization'//rea_char//'.plt')
-write(400*c+i,*) 'Variables="H","dH/dt","Mx","My","Mz","dMx","dMy","dMz","t"'
+write(400*c+i,*) 'Variables="Hx","Hy","Hz","Mx","My","Mz","t"'
 end do
 end if
 
@@ -284,6 +287,8 @@ end if
 if(grafmag) then
   open(5*c,file='magnetization.plt')
   write(5*c,*)'Variables="H","dH/dt","Mx","My","Mz","dMx","dMy","dMz","t"'
+  open(12*c, file="nematic_order.plt")
+  write(12*c,*) 'Variables= "t", "mean_nematic_order","std_no", "n_nematic_x", "n_nematic_y","n_nematic_z","nH_align"'
 end if
 
 if(printphi) then
@@ -996,7 +1001,6 @@ end subroutine initial_condition
 subroutine field_excitations
   implicit none
   integer  k
-
 510 FORMAT(F30.4,F30.4,F30.4)
 
   if (duffing) then
@@ -1022,7 +1026,6 @@ subroutine field_excitations
       y(k)      = y(k-1)      + (dt/6.0)*(k1 + 2.0*k2 + 2.0*k3 + k4)
       campo(k)  = campo(k-1)  + (dt/6.0)*(g1 + 2.0*g2 + 2.0*g3 + g4)
       tempototal(k) = tempototal(k-1) + dt 
-
       write(300*rea,510) tempototal(k), campo(k), y(k)
     end do
  
@@ -3273,4 +3276,403 @@ pure function select_time_scale(ligaih, browniano, shear, gravidade, inertia) re
   end subroutine print_time_scale
 
 !************************************************
+subroutine nematic_order(rea, N, Di, Hhat, S_medio, S_std, n_dir, nH_align)
+    !---------------------------------------------------------------------------
+    ! Calcula:
+    !  - Ordem nemática média S_medio
+    !  - Desvio-padrão S_std (entre realizações)
+    !  - Diretor nemático médio n_dir
+    !  - Alinhamento nemático-campo: nH_align = |n_dir · Hhat|
+    !
+    ! Assume:
+    !  - Di(j,i,:) já normalizado
+    !  - Hhat(:) normalizado
+    !---------------------------------------------------------------------------
+    implicit none
+
+    integer, intent(in) :: rea, N
+    real,    intent(in) :: Di(rea, N, 3)
+    real,    intent(in) :: Hhat(3)
+
+    real, intent(out) :: S_medio
+    real, intent(out) :: S_std
+    real, intent(out) :: n_dir(3)
+    real, intent(out) :: nH_align
+
+    integer :: j, i, a, b
+    real(8) :: Q(3,3), I3(3,3)
+    real(8) :: u(3), normu, eps
+    real(8) :: eigval(3), eigvec(3,3)
+    real(8) :: vmax(3), smax
+    real(8) :: vacc(3), signfix
+    real(8) :: sumS, sumS2, meanS, varS
+    real(8) :: dotnH
+
+    eps = 1.0d-14
+
+    ! Identidade 3x3
+    I3 = 0.0d0
+    do a = 1, 3
+        I3(a,a) = 1.0d0
+    end do
+
+    vacc  = 0.0d0
+    sumS  = 0.0d0
+    sumS2 = 0.0d0
+
+    do j = 1, rea
+
+        Q = 0.0d0
+
+        do i = 1, N
+            u(1) = dble(Di(j,i,1))
+            u(2) = dble(Di(j,i,2))
+            u(3) = dble(Di(j,i,3))
+
+            do a = 1, 3
+                do b = 1, 3
+                    Q(a,b) = Q(a,b) + 1.5d0*u(a)*u(b) - 0.5d0*I3(a,b)
+                end do
+            end do
+        end do
+
+        Q = Q / dble(N)
+
+        call eig_sym_3x3(Q, eigval, eigvec)
+        call max_eig_3(eigval, eigvec, smax, vmax)
+
+        sumS  = sumS  + smax
+        sumS2 = sumS2 + smax*smax
+
+        if (j == 1) then
+            vacc = vmax
+        else
+            signfix = 1.0d0
+            if ( (vacc(1)*vmax(1) + vacc(2)*vmax(2) + vacc(3)*vmax(3)) < 0.0d0 ) then
+                signfix = -1.0d0
+            end if
+            vacc = vacc + signfix*vmax
+        end if
+
+    end do
+
+    meanS = sumS / dble(rea)
+
+    if (rea > 1) then
+        varS = (sumS2 - dble(rea)*meanS*meanS) / dble(rea - 1)
+        if (varS < 0.0d0) varS = 0.0d0
+    else
+        varS = 0.0d0
+    end if
+
+    S_medio = real(meanS)
+    S_std   = real(sqrt(varS))
+
+    ! Diretor médio
+    normu = sqrt(vacc(1)*vacc(1) + vacc(2)*vacc(2) + vacc(3)*vacc(3))
+    if (normu > eps) then
+        n_dir(1) = real(vacc(1) / normu)
+        n_dir(2) = real(vacc(2) / normu)
+        n_dir(3) = real(vacc(3) / normu)
+    else
+        n_dir = 0.0
+    end if
+
+    ! Alinhamento nemático-campo (escalar)
+    dotnH = n_dir(1)*Hhat(1) + n_dir(2)*Hhat(2) + n_dir(3)*Hhat(3)
+    nH_align = abs( real(dotnH) )
+
+end subroutine nematic_order
+
+!===============================================================================
+! Return the highest eigenvalue and the corresponding eigenvector
+! Important to estimate the nematic order of the suspension
+!===============================================================================
+subroutine max_eig_3(eigval, eigvec, smax, vmax)
+    implicit none
+    real(8), intent(in)  :: eigval(3), eigvec(3,3)
+    real(8), intent(out) :: smax, vmax(3)
+    integer :: imax
+
+    imax = 1
+    if (eigval(2) > eigval(imax)) imax = 2
+    if (eigval(3) > eigval(imax)) imax = 3
+
+    smax = eigval(imax)
+    vmax(1) = eigvec(1,imax)
+    vmax(2) = eigvec(2,imax)
+    vmax(3) = eigvec(3,imax)
+end subroutine max_eig_3
+
+
+!===============================================================================
+! Eigenvalues and eigenvector of a symmetric 3x3 matrix through Jacobi
+! Important to estimate the nematic order of the suspension
+!===============================================================================
+subroutine eig_sym_3x3(Ain, eigval, eigvec)
+    implicit none
+    real(8), intent(in)  :: Ain(3,3)
+    real(8), intent(out) :: eigval(3)
+    real(8), intent(out) :: eigvec(3,3)
+
+    real(8) :: A(3,3), V(3,3)
+    real(8) :: tol, apq, app, aqq, phi, c, s
+    real(8) :: tmp
+    integer :: p, q, it, i, j
+    real(8) :: off
+
+    A = Ain
+
+    ! V = identidade
+    V = 0.0d0
+    do i = 1, 3
+        V(i,i) = 1.0d0
+    end do
+
+    tol = 1.0d-14
+
+    do it = 1, 50
+
+        ! Soma dos termos fora da diagonal (medida de convergência)
+        off = abs(A(1,2)) + abs(A(1,3)) + abs(A(2,3))
+        if (off < tol) exit
+
+        ! Escolhe maior termo fora da diagonal em módulo
+        p = 1; q = 2
+        if (abs(A(1,3)) > abs(A(p,q))) then
+            p = 1; q = 3
+        end if
+        if (abs(A(2,3)) > abs(A(p,q))) then
+            p = 2; q = 3
+        end if
+
+        apq = A(p,q)
+        app = A(p,p)
+        aqq = A(q,q)
+
+        if (abs(apq) < tol) cycle
+
+        phi = 0.5d0 * atan2(2.0d0*apq, (aqq - app))
+        c = cos(phi)
+        s = sin(phi)
+
+        ! Atualiza A = J^T A J (rotação de Jacobi em (p,q))
+        do j = 1, 3
+            tmp     = c*A(p,j) - s*A(q,j)
+            A(q,j)  = s*A(p,j) + c*A(q,j)
+            A(p,j)  = tmp
+        end do
+
+        do i = 1, 3
+            tmp     = c*A(i,p) - s*A(i,q)
+            A(i,q)  = s*A(i,p) + c*A(i,q)
+            A(i,p)  = tmp
+        end do
+
+        ! Zera numericamente o termo p,q (simetria)
+        A(p,q) = 0.0d0
+        A(q,p) = 0.0d0
+
+        ! Atualiza V = V J
+        do i = 1, 3
+            tmp    = c*V(i,p) - s*V(i,q)
+            V(i,q) = s*V(i,p) + c*V(i,q)
+            V(i,p) = tmp
+        end do
+
+    end do
+
+    eigval(1) = A(1,1)
+    eigval(2) = A(2,2)
+    eigval(3) = A(3,3)
+
+    eigvec = V
+
+end subroutine eig_sym_3x3
+
+!=========================================================
+! SAR via integral vetorial: Ecycle = ∮ M · dH
+!=========================================================
+
+subroutine compute_sar_from_file(rotating, oscilacampo, externo, freqcampo, &
+                                 Ecycle_mean, Ecycle_std, SAR_nd, nCyclesUsed)
+
+  implicit none
+  logical, intent(in) :: rotating, oscilacampo, externo
+  real(8), intent(in) :: freqcampo
+  real(8), intent(out) :: Ecycle_mean, Ecycle_std, SAR_nd
+  integer, intent(out) :: nCyclesUsed
+
+  integer :: i, ios, unit
+  integer :: Nt
+  real(8) :: Hx,Hy,Hz,Mx,My,Mz,t
+  real(8), allocatable :: H(:, :), M(:, :), tt(:)
+  real(8) :: pi, Tper
+  integer :: iStart, iEnd
+  integer :: Ntrans, Nc
+  integer :: c
+  real(8) :: Ecyc, sumE, sumE2, meanE, varE
+  real(8) :: Mavg(3), dH(3)
+
+  ! >>> variáveis que estavam declaradas no meio do DO (agora no topo)
+  real(8) :: t0, t1
+  integer :: k0, k1
+
+  Ecycle_mean = 0.0d0
+  Ecycle_std  = 0.0d0
+  SAR_nd      = 0.0d0
+  nCyclesUsed = 0
+
+  if (.not. externo) return
+  if (.not. (rotating .or. oscilacampo)) return
+
+  if (freqcampo <= 0.0d0) return
+
+  pi = acos(-1.0d0)
+
+  ! Assumindo freqcampo = ω (rad/unid_tempo_adimensional):
+  Tper = 2.0d0*pi / freqcampo
+
+  unit = 99
+
+  !-------------------------
+  ! 1) contar linhas
+  !-------------------------
+  open(unit=unit, file='magnetization.plt', status='old', action='read', iostat=ios)
+  if (ios /= 0) return
+
+  Nt = 0
+  do
+    read(unit, *, iostat=ios) Hx,Hy,Hz,Mx,My,Mz,t
+    if (ios /= 0) exit
+    Nt = Nt + 1
+  end do
+  close(unit)
+
+  if (Nt < 5) return
+
+  allocate(H(3,Nt), M(3,Nt), tt(Nt))
+
+  !-------------------------
+  ! 2) ler dados
+  !-------------------------
+  open(unit=unit, file='magnetization.plt', status='old', action='read', iostat=ios)
+  if (ios /= 0) then
+    deallocate(H,M,tt)
+    return
+  end if
+
+  do i = 1, Nt
+    read(unit, *, iostat=ios) Hx,Hy,Hz,Mx,My,Mz,t
+    if (ios /= 0) exit
+    H(1,i) = Hx; H(2,i) = Hy; H(3,i) = Hz
+    M(1,i) = Mx; M(2,i) = My; M(3,i) = Mz
+    tt(i)  = t
+  end do
+  close(unit)
+
+  iEnd = Nt
+
+  !-------------------------
+  ! 3) escolher janela: descartar transiente e usar últimos ciclos
+  !-------------------------
+  Ntrans = 2   ! descarta 2 ciclos iniciais (ajustável)
+  Nc     = 5   ! usa últimos 5 ciclos (ajustável)
+
+  if (tt(Nt) - tt(1) < (dble(Ntrans)+1.0d0)*Tper) then
+    Ntrans = 0
+  end if
+
+  ! ciclos disponíveis após transiente
+  nCyclesUsed = int( (tt(Nt) - (tt(1) + dble(Ntrans)*Tper)) / Tper )
+  if (nCyclesUsed <= 0) then
+    deallocate(H,M,tt)
+    nCyclesUsed = 0
+    return
+  end if
+  if (nCyclesUsed > Nc) nCyclesUsed = Nc
+
+  ! início da janela final com nCyclesUsed ciclos
+  t = tt(Nt) - dble(nCyclesUsed)*Tper
+  if (t < tt(1) + dble(Ntrans)*Tper) t = tt(1) + dble(Ntrans)*Tper
+
+  iStart = 1
+  do i = 1, Nt
+    if (tt(i) >= t) then
+      iStart = i
+      exit
+    end if
+  end do
+
+  !-------------------------
+  ! 4) integrar por ciclo (trapézio vetorial)
+  !-------------------------
+  sumE  = 0.0d0
+  sumE2 = 0.0d0
+
+  do c = 1, nCyclesUsed
+
+    ! limites do ciclo c na janela final
+    t1 = tt(Nt) - dble(nCyclesUsed - c)*Tper
+    t0 = t1 - Tper
+
+    ! localizar k0 e k1
+    k0 = iStart
+    do i = iStart, iEnd
+      if (tt(i) >= t0) then
+        k0 = i
+        exit
+      end if
+    end do
+
+    k1 = k0
+    do i = k0, iEnd
+      if (tt(i) >= t1) then
+        k1 = i
+        exit
+      end if
+    end do
+
+    if (k1 <= k0+1) cycle
+
+    Ecyc = 0.0d0
+    do i = k0, k1-1
+      Mavg(1) = 0.5d0*(M(1,i) + M(1,i+1))
+      Mavg(2) = 0.5d0*(M(2,i) + M(2,i+1))
+      Mavg(3) = 0.5d0*(M(3,i) + M(3,i+1))
+
+      dH(1) = H(1,i+1) - H(1,i)
+      dH(2) = H(2,i+1) - H(2,i)
+      dH(3) = H(3,i+1) - H(3,i)
+
+      Ecyc = Ecyc + (Mavg(1)*dH(1) + Mavg(2)*dH(2) + Mavg(3)*dH(3))
+    end do
+
+    sumE  = sumE  + Ecyc
+    sumE2 = sumE2 + Ecyc*Ecyc
+
+  end do
+
+  meanE = sumE / dble(nCyclesUsed)
+
+  if (nCyclesUsed > 1) then
+    varE = (sumE2 - dble(nCyclesUsed)*meanE*meanE) / dble(nCyclesUsed - 1)
+    if (varE < 0.0d0) varE = 0.0d0
+  else
+    varE = 0.0d0
+  end if
+
+  ! Energia dissipada deve ser positiva (orientação do laço pode dar sinal)
+  Ecycle_mean = abs(meanE)
+  Ecycle_std  = sqrt(varE)
+
+  ! SAR adimensional: frequência * energia por ciclo
+  SAR_nd = freqcampo * Ecycle_mean
+
+  deallocate(H,M,tt)
+
+end subroutine compute_sar_from_file
+
+
+
 end module subroutines
